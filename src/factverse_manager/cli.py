@@ -16,6 +16,7 @@ from .subtitles import write_srt
 from .manifest import verify_manifest
 from .youtube_upload import upload_video
 from .review import create_review_checklist, approve_metadata
+from .evidence import create_evidence_register, approve_evidence_register
 
 def _write_json(path, data):
     path = Path(path)
@@ -89,6 +90,13 @@ def main():
     approve_parser.add_argument("metadata", help="metadata JSON path")
     approve_parser.add_argument("--confirm-human-review", action="store_true", help="confirm claims, sources, metadata, and audience suitability were checked")
     approve_parser.add_argument("--confirm-originality", action="store_true", help="confirm visuals/audio/script rights and original value were checked")
+    evidence_parser = sub.add_parser("evidence", help="create a per-claim evidence register for human review")
+    evidence_parser.add_argument("metadata", help="metadata JSON path")
+    evidence_parser.add_argument("--output", help="optional evidence register path")
+    evidence_approve_parser = sub.add_parser("evidence-approve", help="approve an evidence register only after each claim is checked")
+    evidence_approve_parser.add_argument("register", help="evidence register JSON path")
+    evidence_approve_parser.add_argument("--confirm-each-claim", action="store_true", help="confirm every claim was checked against cited evidence")
+    evidence_approve_parser.add_argument("--confirm-sources", action="store_true", help="confirm sources were read and support the claims")
     args = parser.parse_args()
     if args.command == "topics":
         print(json.dumps([{"slug": t.slug, "title": t.fact.title} for t in all_topics()], indent=2, ensure_ascii=False))
