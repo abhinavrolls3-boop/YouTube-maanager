@@ -34,3 +34,8 @@ Uploads stay disabled unless repository variables `ENABLE_YOUTUBE_UPLOAD=true` a
 - AI drafts are not automatically treated as verified or upload-ready.
 
 Never commit credentials or paste secrets into chat. See docs/AUTOMATION.md and docs/YOUTUBE_SETUP.md.
+
+
+## Safety and review
+
+Generated videos are drafts, not auto-published content. The scheduled workflow prepares artifacts only. Uploading requires source links, per-video human approval and an originality review; the uploader rejects public visibility and defaults to one upload per UTC day. No automated process can guarantee that YouTube will never restrict or remove a channel.
