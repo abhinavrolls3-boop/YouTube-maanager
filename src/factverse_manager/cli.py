@@ -20,8 +20,11 @@ def _write_json(path, data):
     return str(path)
 
 def render_fact(fact, safe_slug):
-    video_path = f"output/{safe_slug}.mp4"
-    thumbnail_path = f"output/{safe_slug}_thumbnail.png"
+    import os
+    output_dir = Path(os.getenv("FACTVERSE_OUTPUT_DIR", "output"))
+    output_dir.mkdir(parents=True, exist_ok=True)
+    video_path = str(output_dir / f"{safe_slug}.mp4")
+    thumbnail_path = str(output_dir / f"{safe_slug}_thumbnail.png")
     video, thumbnail = render_video(fact.title, fact.explanation, video_path, thumbnail_path)
     narration_status = "disabled"
     if __import__("os").getenv("ENABLE_NARRATION", "false").lower() == "true":
@@ -35,7 +38,7 @@ def render_fact(fact, safe_slug):
     metadata["topic_slug"] = safe_slug
     metadata["human_fact_check_required"] = True
     metadata["narration_status"] = narration_status
-    metadata_path = _write_json(f"output/{safe_slug}_metadata.json", metadata)
+    metadata_path = _write_json(str(output_dir / f"{safe_slug}_metadata.json"), metadata)
     return {"topic": safe_slug, "video": video, "thumbnail": thumbnail, "metadata": metadata_path}
 
 def render_topic(slug=None):
