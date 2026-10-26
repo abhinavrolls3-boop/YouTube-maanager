@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+token.json
+client_secret*.json
+credentials.json
+*.mp4
+*.png
+output/
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+*.py[cod]
+.DS_Store
