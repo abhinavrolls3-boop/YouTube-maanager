@@ -3,13 +3,13 @@ import json
 from pathlib import Path
 from .planning import build_plan
 from .quality import validate_package
-from .cli import render_topic
 
 def run_batch(days=1, start_date=None, output_dir="output"):
     root = Path(output_dir)
     root.mkdir(parents=True, exist_ok=True)
     plan = build_plan(start_date, days)
     results = []
+    from .cli import render_topic
     for item in plan:
         slug = item["topic"]
         try:
