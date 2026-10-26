@@ -1,0 +1,7 @@
+Pillow>=10.0,<13
+imageio>=2.34,<3
+imageio-ffmpeg>=0.5,<1
+google-api-python-client>=2.120,<3
+google-auth-oauthlib>=1.2,<2
+google-auth-httplib2>=0.2,<1
+pytest>=8,<9
