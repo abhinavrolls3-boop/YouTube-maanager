@@ -1,25 +1,34 @@
 """Optional YouTube Data API upload; disabled unless explicitly enabled."""
 from pathlib import Path
+import json
 import os
 from .state import file_sha256, has_uploaded_hash, record_upload
 
+def _credentials(client_secret_file):
+    token_json = os.getenv("YOUTUBE_TOKEN_JSON", "").strip()
+    if token_json:
+        from google.oauth2.credentials import Credentials
+        info = json.loads(token_json)
+        return Credentials.from_authorized_user_info(info, ["https://www.googleapis.com/auth/youtube.upload"])
+    if not Path(client_secret_file).is_file():
+        raise FileNotFoundError("Missing OAuth client JSON or YOUTUBE_TOKEN_JSON secret. Follow docs/YOUTUBE_SETUP.md; never commit credentials.")
+    from google_auth_oauthlib.flow import InstalledAppFlow
+    flow = InstalledAppFlow.from_client_secrets_file(client_secret_file, ["https://www.googleapis.com/auth/youtube.upload"])
+    return flow.run_local_server(port=0)
+
 def upload_video(video_path: str, metadata: dict, client_secret_file: str = "client_secret.json") -> str:
     if os.getenv("ENABLE_UPLOAD", "false").lower() != "true":
-        raise RuntimeError("Upload disabled. Enable only after OAuth setup and review.")
+        raise RuntimeError("Upload disabled. Set ENABLE_UPLOAD=true only after explicit channel authorization.")
     video = Path(video_path)
     if not video.is_file():
         raise FileNotFoundError(video_path)
-    if not Path(client_secret_file).is_file():
-        raise FileNotFoundError("Missing OAuth client JSON. Follow docs/YOUTUBE_SETUP.md; never commit credentials.")
     digest = file_sha256(video)
     history_path = os.getenv("UPLOAD_HISTORY", "output/upload_history.json")
     if has_uploaded_hash(digest, history_path):
         raise RuntimeError("Duplicate upload blocked: this exact video file is already recorded in the local upload history.")
-    from google_auth_oauthlib.flow import InstalledAppFlow
     from googleapiclient.discovery import build
     from googleapiclient.http import MediaFileUpload
-    flow = InstalledAppFlow.from_client_secrets_file(client_secret_file, ["https://www.googleapis.com/auth/youtube.upload"])
-    credentials = flow.run_local_server(port=0)
+    credentials = _credentials(client_secret_file)
     youtube = build("youtube", "v3", credentials=credentials)
     body = {
         "snippet": {
