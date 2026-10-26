@@ -1,13 +1,14 @@
 # YouTube upload setup
 
-Uploads are disabled by default and require a channel you control.
+Uploads are optional and disabled by default. Use a channel you control.
 
 1. In Google Cloud Console, create/select a project and enable YouTube Data API v3.
 2. Configure the OAuth consent screen and create an OAuth client.
-3. Keep the downloaded client JSON private. Do not commit it or paste it into chat.
-4. A local browser-capable OAuth flow can produce authorized-user credentials with a refresh token. Ensure the credentials include the YouTube upload scope. Do not share the token publicly.
-5. For unattended GitHub Actions uploads, store the complete authorized-user credential JSON as the encrypted repository Actions secret "YOUTUBE_TOKEN_JSON". Do not put it in a repository variable or source file.
-6. Only after confirming the secret belongs to the correct channel, set repository variables "ENABLE_YOUTUBE_UPLOAD=true" and "APPROVE_AUTOMATED_UNLISTED_UPLOAD=true".
-7. The daily workflow will upload videos as **unlisted**. It does not make videos public. Verify the result in YouTube Studio before changing visibility.
+3. Keep the downloaded client JSON private. Never commit it or paste it into chat.
+4. Complete OAuth authorization locally using the upload scope and keep the authorized-user credentials private.
+5. The scheduled GitHub Actions workflow only prepares videos and review artifacts. It does not upload or publish videos.
+6. Before any upload, open the actual video, verify every claim against relevant sources, check originality and asset rights, review title/thumbnail/description, and consider whether altered/synthetic-content disclosure is required.
+7. Generate a checklist with `PYTHONPATH=src python -m factverse_manager.cli review output/<topic>_metadata.json`. After completing the checks yourself, explicitly record approval with `PYTHONPATH=src python -m factverse_manager.cli approve output/<topic>_metadata.json --confirm-human-review --confirm-originality`.
+8. Only then use the upload CLI with valid OAuth credentials. The uploader allows only private or unlisted visibility, requires source URLs and both approval flags, blocks matching video hashes in the local history, and defaults to one upload per UTC day.
 
-The workflow uses a best-effort Actions cache for upload hashes; cache eviction can remove this history. Do not rely on it as a permanent duplicate-proof database. YouTube quota, API policies, OAuth verification restrictions, and account permissions still apply. No upload is made unless the opt-in variables and credentials are configured.
+The upload history is local/best-effort and can be lost, so it is not a permanent duplicate-proof database. YouTube API quota, OAuth verification restrictions, channel permissions, monetization policies, and community guidelines still apply. These checks cannot guarantee that YouTube will never restrict a video or channel.
