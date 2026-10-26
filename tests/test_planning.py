@@ -15,3 +15,8 @@ def test_plan_length_is_bounded():
         pass
     else:
         raise AssertionError("Overlong plan should be rejected")
+
+def test_single_day_topic_changes_with_date():
+    first = build_plan("2026-10-26", 1)[0]["topic"]
+    second = build_plan("2026-10-27", 1)[0]["topic"]
+    assert first != second
