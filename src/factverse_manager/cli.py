@@ -15,6 +15,7 @@ from .source_check import check_sources
 from .subtitles import write_srt
 from .manifest import verify_manifest
 from .youtube_upload import upload_video
+from .review import create_review_checklist, approve_metadata
 
 def _write_json(path, data):
     path = Path(path)
@@ -81,6 +82,13 @@ def main():
     manifest_parser.add_argument("manifest", help="artifact_manifest.json path")
     analytics_parser = sub.add_parser("analytics", help="summarize a YouTube Studio CSV export")
     analytics_parser.add_argument("csv_path", help="path to CSV file")
+    review_parser = sub.add_parser("review", help="create a human review checklist for one package")
+    review_parser.add_argument("metadata", help="metadata JSON path")
+    review_parser.add_argument("--output", help="optional checklist output path")
+    approve_parser = sub.add_parser("approve", help="record explicit human review after you have inspected the actual video and sources")
+    approve_parser.add_argument("metadata", help="metadata JSON path")
+    approve_parser.add_argument("--confirm-human-review", action="store_true", help="confirm claims, sources, metadata, and audience suitability were checked")
+    approve_parser.add_argument("--confirm-originality", action="store_true", help="confirm visuals/audio/script rights and original value were checked")
     args = parser.parse_args()
     if args.command == "topics":
         print(json.dumps([{"slug": t.slug, "title": t.fact.title} for t in all_topics()], indent=2, ensure_ascii=False))
@@ -124,6 +132,14 @@ def main():
         result = analyze_csv(args.csv_path)
         path = _write_json("output/analytics.json", result)
         print(json.dumps({"report": path, "summary": result}, indent=2, ensure_ascii=False))
+    elif args.command == "review":
+        checklist, path = create_review_checklist(args.metadata, args.output)
+        print(json.dumps({"checklist": path, "items": checklist}, indent=2, ensure_ascii=False))
+    elif args.command == "approve":
+        result = approve_metadata(args.metadata, args.confirm_human_review, args.confirm_originality)
+        print(json.dumps({"metadata": args.metadata, "human_review_status": result["human_review_status"],
+                          "originality_check_status": result["originality_check_status"],
+                          "reviewed_at_utc": result["reviewed_at_utc"]}, indent=2, ensure_ascii=False))
     else:
         render_topic()
 
