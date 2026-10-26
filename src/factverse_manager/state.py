@@ -1,6 +1,7 @@
 """Local upload ledger. Keep it private; it contains video hashes and YouTube IDs."""
 import hashlib
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 def file_sha256(path):
@@ -31,5 +32,6 @@ def record_upload(video_hash, video_id, title, path="output/upload_history.json"
     if any(item.get("sha256") == video_hash for item in history["uploads"]):
         raise ValueError("This exact video file is already recorded as uploaded.")
     history_path.parent.mkdir(parents=True, exist_ok=True)
-    history["uploads"].append({"sha256": video_hash, "video_id": video_id, "title": title})
+    history["uploads"].append({"sha256": video_hash, "video_id": video_id, "title": title,
+                               "uploaded_at": datetime.now(timezone.utc).isoformat()})
     history_path.write_text(json.dumps(history, indent=2, ensure_ascii=False), encoding="utf-8")
