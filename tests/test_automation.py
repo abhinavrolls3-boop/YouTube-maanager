@@ -13,6 +13,9 @@ def test_batch_generates_review_report_without_publishing(tmp_path, monkeypatch)
     assert (tmp_path / "output" / "artifact_manifest.json").is_file()
     checklist = report["items"][0]["artifacts"]["review_checklist"]
     assert (tmp_path / checklist).is_file() if not Path(checklist).is_absolute() else Path(checklist).is_file()
+    evidence = report["items"][0]["artifacts"]["evidence_register"]
+    assert Path(evidence).is_file()
+    assert json.loads(Path(evidence).read_text(encoding="utf-8"))["status"] == "needs_human_review"
 
 def test_batch_respects_custom_output_directory(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
@@ -23,3 +26,4 @@ def test_batch_respects_custom_output_directory(tmp_path, monkeypatch):
     assert (destination / "artifact_manifest.json").is_file()
     assert (destination / (report["items"][0]["artifacts"]["topic"] + ".mp4")).is_file()
     assert Path(report["items"][0]["artifacts"]["review_checklist"]).is_file()
+    assert Path(report["items"][0]["artifacts"]["evidence_register"]).is_file()
