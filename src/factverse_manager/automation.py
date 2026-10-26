@@ -8,12 +8,13 @@ from .library import get_topic
 from .model_gateway import draft_fact
 
 def run_batch(days=1, start_date=None, output_dir="output"):
-    root = Path(output_dir)
+    root = Path(output_dir).resolve()
     root.mkdir(parents=True, exist_ok=True)
     plan = build_plan(start_date, days)
     results = []
-    from .cli import render_topic
     from .cli import render_fact, render_topic
+    previous_output_dir = os.environ.get("FACTVERSE_OUTPUT_DIR")
+    os.environ["FACTVERSE_OUTPUT_DIR"] = str(root)
     for item in plan:
         slug = item["topic"]
         try:
@@ -40,4 +41,8 @@ def run_batch(days=1, start_date=None, output_dir="output"):
               "note": "This batch does not publish videos. Review each claim and output before uploading."}
     report_path = root / "automation_report.json"
     report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+    if previous_output_dir is None:
+        os.environ.pop("FACTVERSE_OUTPUT_DIR", None)
+    else:
+        os.environ["FACTVERSE_OUTPUT_DIR"] = previous_output_dir
     return report, str(report_path)
