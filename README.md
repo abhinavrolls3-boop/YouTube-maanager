@@ -13,6 +13,8 @@ A phone-manageable, zero-budget-first toolkit for preparing FactVerse videos. Th
 
 ## What is implemented
 - Five curated offline science/nature topics (no model API required).
+- One-week content calendar generation with review-required flags.
+- Local SHA-256 upload history that blocks repeat uploads of the exact same video file.
 - MP4, vertical thumbnail, title/description/tags/hashtags and narration text metadata.
 - Tests for content validation, topic selection, CSV analytics and real render artifact creation.
 - YouTube Studio CSV analytics summary with top videos and descriptive metrics.
@@ -22,6 +24,7 @@ A phone-manageable, zero-budget-first toolkit for preparing FactVerse videos. Th
 ## Commands
 Run from the repository root:
 - PYTHONPATH=src python -m factverse_manager.cli topics
+- PYTHONPATH=src python -m factverse_manager.cli plan --days 7 --start 2026-10-26
 - PYTHONPATH=src python -m factverse_manager.cli render octopus-hearts
 - PYTHONPATH=src python -m factverse_manager.cli analytics path/to/youtube-studio-export.csv
 
