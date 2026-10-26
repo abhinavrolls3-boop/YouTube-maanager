@@ -7,6 +7,7 @@ from .automation import run_batch
 from .quality import validate_package
 from .content import SAMPLE_FACT, make_metadata
 from .library import all_topics, get_topic
+from .model_gateway import draft_fact
 from .planning import build_plan
 from .render import render_video
 
@@ -16,18 +17,22 @@ def _write_json(path, data):
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
     return str(path)
 
-def render_topic(slug=None):
-    topic = get_topic(slug) if slug else None
-    fact = topic.fact if topic else SAMPLE_FACT
-    safe_slug = topic.slug if topic else "factverse_sample"
+def render_fact(fact, safe_slug):
     video_path = f"output/{safe_slug}.mp4"
     thumbnail_path = f"output/{safe_slug}_thumbnail.png"
     video, thumbnail = render_video(fact.title, fact.explanation, video_path, thumbnail_path)
     metadata = make_metadata(fact)
     metadata["narration"] = fact.narration
     metadata["topic_slug"] = safe_slug
+    metadata["human_fact_check_required"] = True
     metadata_path = _write_json(f"output/{safe_slug}_metadata.json", metadata)
-    result = {"topic": safe_slug, "video": video, "thumbnail": thumbnail, "metadata": metadata_path}
+    return {"topic": safe_slug, "video": video, "thumbnail": thumbnail, "metadata": metadata_path}
+
+def render_topic(slug=None):
+    topic = get_topic(slug) if slug else None
+    fact = topic.fact if topic else SAMPLE_FACT
+    safe_slug = topic.slug if topic else "factverse_sample"
+    result = render_fact(fact, safe_slug)
     print(json.dumps(result, indent=2))
     return result
 
@@ -43,6 +48,8 @@ def main():
     batch_parser = sub.add_parser("batch", help="render a bounded batch and produce a review report")
     batch_parser.add_argument("--start", help="start date in YYYY-MM-DD format")
     batch_parser.add_argument("--days", type=int, default=1, help="number of topics to render (1-31)")
+    draft_parser = sub.add_parser("draft", help="generate an optional model-assisted script draft")
+    draft_parser.add_argument("topic_hint", help="topic hint for the draft")
     check_parser = sub.add_parser("check", help="check a video, thumbnail and metadata package")
     check_parser.add_argument("video")
     check_parser.add_argument("thumbnail")
@@ -61,6 +68,12 @@ def main():
     elif args.command == "batch":
         report, path = run_batch(args.days, args.start)
         print(json.dumps({"report": path, "summary": report}, indent=2, ensure_ascii=False))
+    elif args.command == "draft":
+        fact = draft_fact(args.topic_hint)
+        data = make_metadata(fact)
+        data.update({"narration": fact.narration, "explanation": fact.explanation, "human_fact_check_required": True})
+        path = _write_json("output/model_draft.json", data)
+        print(json.dumps({"draft": path, "title": fact.title, "human_fact_check_required": True}, indent=2, ensure_ascii=False))
     elif args.command == "check":
         result = validate_package(args.video, args.thumbnail, args.metadata)
         print(json.dumps(result, indent=2, ensure_ascii=False))
