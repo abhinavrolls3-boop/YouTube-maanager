@@ -1,13 +1,52 @@
-"""Build a sample video and metadata bundle."""
+"""Command-line interface for offline FactVerse planning and rendering."""
+import argparse
 import json
 from pathlib import Path
+from .analytics import analyze_csv
 from .content import SAMPLE_FACT, make_metadata
+from .library import all_topics, get_topic
 from .render import render_video
 
-def main():
-    metadata=make_metadata(SAMPLE_FACT)
-    video, thumbnail=render_video(SAMPLE_FACT.title,SAMPLE_FACT.explanation)
-    Path("output/metadata.json").write_text(json.dumps(metadata,indent=2),encoding="utf-8")
-    print(json.dumps({"video":video,"thumbnail":thumbnail,"metadata":"output/metadata.json"},indent=2))
+def _write_json(path, data):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    return str(path)
 
-if __name__ == "__main__": main()
+def render_topic(slug=None):
+    topic = get_topic(slug) if slug else None
+    fact = topic.fact if topic else SAMPLE_FACT
+    safe_slug = topic.slug if topic else "factverse_sample"
+    video_path = f"output/{safe_slug}.mp4"
+    thumbnail_path = f"output/{safe_slug}_thumbnail.png"
+    video, thumbnail = render_video(fact.title, fact.explanation, video_path, thumbnail_path)
+    metadata = make_metadata(fact)
+    metadata["narration"] = fact.narration
+    metadata["topic_slug"] = safe_slug
+    metadata_path = _write_json(f"output/{safe_slug}_metadata.json", metadata)
+    result = {"topic": safe_slug, "video": video, "thumbnail": thumbnail, "metadata": metadata_path}
+    print(json.dumps(result, indent=2))
+    return result
+
+def main():
+    parser = argparse.ArgumentParser(description="Offline-first FactVerse content helper")
+    sub = parser.add_subparsers(dest="command")
+    sub.add_parser("topics", help="list built-in offline topics")
+    render_parser = sub.add_parser("render", help="render one built-in topic")
+    render_parser.add_argument("topic", help="topic slug shown by the topics command")
+    analytics_parser = sub.add_parser("analytics", help="summarize a YouTube Studio CSV export")
+    analytics_parser.add_argument("csv_path", help="path to CSV file")
+    args = parser.parse_args()
+    if args.command == "topics":
+        print(json.dumps([{"slug": t.slug, "title": t.fact.title} for t in all_topics()], indent=2, ensure_ascii=False))
+    elif args.command == "render":
+        render_topic(args.topic)
+    elif args.command == "analytics":
+        result = analyze_csv(args.csv_path)
+        path = _write_json("output/analytics.json", result)
+        print(json.dumps({"report": path, "summary": result}, indent=2, ensure_ascii=False))
+    else:
+        render_topic()
+
+if __name__ == "__main__":
+    main()
