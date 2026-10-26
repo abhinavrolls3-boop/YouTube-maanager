@@ -12,3 +12,4 @@ def test_curated_topic_metadata_includes_source_urls():
     metadata = make_metadata(fact)
     assert metadata["source_urls"]
     assert metadata["source_urls"][0].startswith("https://")
+    assert metadata["source_urls"][0] in metadata["description"]
