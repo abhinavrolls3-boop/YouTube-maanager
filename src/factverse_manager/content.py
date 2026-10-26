@@ -31,4 +31,5 @@ def make_metadata(fact: Fact) -> dict:
     hashtags = " ".join("#" + re.sub(r"[^A-Za-z0-9]", "", tag.title()) for tag in fact.tags[:5])
     source_section = "\n\nSources to verify:\n" + "\n".join(fact.sources) if fact.sources else ""
     description = f"{fact.explanation}\n\nFollow FactVerse for more bite-sized facts.{source_section}\n\n{hashtags}"
-    return {"title": fact.title, "description": description, "tags": list(fact.tags), "hashtags": hashtags, "categoryId": "27", "source_urls": list(fact.sources)}
+    return {"title": fact.title, "description": description, "tags": list(fact.tags), "hashtags": hashtags, "categoryId": "27", "source_urls": list(fact.sources),
+            "human_review_status": "needs_review", "originality_check_status": "needs_review"}
