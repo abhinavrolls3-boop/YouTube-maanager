@@ -12,27 +12,32 @@ TOPICS = (
         "Why do astronauts look like they float?",
         "Astronauts appear to float because they and their spacecraft are falling around Earth together.",
         "Gravity is still acting in orbit. The spacecraft moves forward fast enough to keep falling around Earth instead of hitting the ground. Astronauts experience this continuous free fall as weightlessness.",
-        ("space", "science", "facts", "astronauts", "education"))),
+        ("space", "science", "facts", "astronauts", "education"),
+        ("https://www.nasa.gov/learning-resources/for-kids-and-students/what-is-microgravity-grades-5-8/",))),
     Topic("octopus-hearts", Fact(
         "How many hearts does an octopus have?",
         "An octopus has three hearts, and two help move blood through its gills.",
         "Two hearts pump blood to the gills, where it picks up oxygen. A third heart sends oxygen-rich blood to the rest of the body. This is one of the unusual features of octopus biology.",
-        ("animals", "octopus", "science", "facts", "education"))),
+        ("animals", "octopus", "science", "facts", "education"),
+        ("https://ocean.si.edu/ocean-life/invertebrates/octopuses-squids-and-relatives",))),
     Topic("venus-day", Fact(
         "Is a day on Venus longer than its year?",
         "Yes. Venus takes longer to rotate once than it takes to orbit the Sun.",
         "Venus rotates very slowly. One rotation takes about 243 Earth days, while one trip around the Sun takes about 225 Earth days. That makes its rotation period longer than its orbital period.",
-        ("space", "venus", "astronomy", "facts", "science"))),
+        ("space", "venus", "astronomy", "facts", "science"),
+        ("https://science.nasa.gov/venus/venus-facts/",))),
     Topic("sharks-older", Fact(
         "Were sharks around before trees?",
         "Sharks as a group are older than the first trees.",
         "Shark ancestors appeared in the fossil record hundreds of millions of years ago. The earliest known trees appeared later, so sharks predate trees in Earth's history. Scientists update these dates as new fossils are found.",
-        ("sharks", "animals", "history", "science", "facts"))),
+        ("sharks", "animals", "history", "science", "facts"),
+        ("https://www.amnh.org/explore/ology/marine-biology/all-about-sharks",))),
     Topic("honey", Fact(
         "Why can honey last a very long time?",
         "Honey resists many microbes because it has little available water and is naturally acidic.",
         "Honey's low water availability, acidity, and other properties make it difficult for many microbes to grow. It can still become contaminated or change, so storage and food safety matter.",
-        ("food", "science", "honey", "facts", "education"))),
+        ("food", "science", "honey", "facts", "education"),
+        ("https://pmp.ars.usda.gov/WaterActivity.aspx",))),
 )
 
 def all_topics():
