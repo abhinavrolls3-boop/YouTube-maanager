@@ -4,7 +4,7 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 
 ## Implemented
 - Five curated offline science/nature topics with source URLs in metadata.
-- Vertical MP4 motion graphics, thumbnail, metadata and narration text.
+- Vertical MP4 motion graphics, thumbnail, metadata, narration text and timed SRT subtitles.
 - Optional free local English TTS in the daily workflow using espeak-ng; failure is recorded and may leave a silent video.
 - One-week calendar, bounded batch production, package preflight checks and JSON review report.
 - Missing source URLs are flagged. A separate command checks URL reachability but cannot verify claims.
