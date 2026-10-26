@@ -35,5 +35,11 @@ def validate_package(video_path, thumbnail_path, metadata_path):
                 image.verify()
         except Exception:
             issues.append("Thumbnail is not a readable image.")
-    return {"ok": not issues, "issues": issues, "human_review_required": True,
-            "note": "Automated checks cannot verify factual accuracy, copyright, or audience suitability."}
+    sources = data.get("source_urls", [])
+    if not isinstance(sources, list):
+        issues.append("source_urls must be a list.")
+        sources = []
+    if not sources:
+        issues.append("No source URLs supplied; a human should add and verify sources before publishing.")
+    return {"ok": not issues, "issues": issues, "source_urls": sources, "human_review_required": True,
+            "note": "Automated checks cannot verify factual accuracy, source relevance, copyright, or audience suitability."}
