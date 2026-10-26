@@ -1,8 +1,24 @@
 name: Build FactVerse sample
 on:
   workflow_dispatch:
+    inputs:
+      topic:
+        description: "Choose an offline fact topic"
+        required: true
+        type: choice
+        default: sample
+        options:
+          - sample
+          - astronauts-float
+          - octopus-hearts
+          - venus-day
+          - sharks-older
+          - honey
 permissions:
   contents: read
+concurrency:
+  group: factverse-manual-build
+  cancel-in-progress: false
 jobs:
   render:
     runs-on: ubuntu-latest
@@ -19,13 +35,19 @@ jobs:
         env:
           PYTHONPATH: src
         run: pytest -q
-      - name: Render sample video
+      - name: Render selected topic
         env:
           PYTHONPATH: src
-        run: python -m factverse_manager.cli
+          TOPIC: ${{ inputs.topic }}
+        run: |
+          if [ "$TOPIC" = "sample" ]; then
+            python -m factverse_manager.cli
+          else
+            python -m factverse_manager.cli render "$TOPIC"
+          fi
       - uses: actions/upload-artifact@v4
         with:
-          name: factverse-sample
+          name: factverse-${{ inputs.topic }}
           path: output/
           if-no-files-found: error
           retention-days: 3
