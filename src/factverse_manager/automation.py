@@ -6,6 +6,7 @@ from .planning import build_plan
 from .quality import validate_package
 from .model_gateway import draft_fact
 from .manifest import create_manifest
+from .review import create_review_checklist
 
 def run_batch(days=1, start_date=None, output_dir="output"):
     root = Path(output_dir).resolve()
@@ -41,7 +42,14 @@ def run_batch(days=1, start_date=None, output_dir="output"):
             results.append({"date": item["date"], "topic": slug, "status": "failed", "error": f"{type(exc).__name__}: {exc}"})
     artifact_paths = []
     for item in results:
-        for key in ("video", "thumbnail", "metadata", "subtitles"):
+        metadata_path = item.get("artifacts", {}).get("metadata")
+        if metadata_path and item.get("status") != "failed":
+            try:
+                _, checklist_path = create_review_checklist(metadata_path)
+                item.setdefault("artifacts", {})["review_checklist"] = checklist_path
+            except Exception as exc:
+                item.setdefault("warnings", []).append("Could not create review checklist: " + str(exc))
+        for key in ("video", "thumbnail", "metadata", "subtitles", "review_checklist"):
             path = item.get("artifacts", {}).get(key)
             if path:
                 artifact_paths.append(path)
