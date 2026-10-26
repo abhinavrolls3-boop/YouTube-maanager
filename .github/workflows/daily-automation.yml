@@ -67,24 +67,8 @@ jobs:
           if report.get("successful", 0) < 1:
               raise SystemExit("No packages passed preflight. Publishing is blocked.")
           PY
-      - name: Upload packages as unlisted videos (explicit opt-in only)
-        if: vars.ENABLE_YOUTUBE_UPLOAD == 'true' && vars.APPROVE_AUTOMATED_UNLISTED_UPLOAD == 'true'
-        env:
-          PYTHONPATH: src
-          ENABLE_UPLOAD: "true"
-          UPLOAD_PRIVACY: unlisted
-          YOUTUBE_TOKEN_JSON: "${{ secrets.YOUTUBE_TOKEN_JSON }}"
-        run: |
-          python - <<'PY'
-          import json, subprocess, sys
-          report = json.load(open("output/automation_report.json", encoding="utf-8"))
-          ready = [item for item in report.get("items", []) if item.get("status") == "ready_for_review"]
-          if not ready:
-              raise SystemExit("No valid package ready for upload.")
-          for item in ready:
-              paths = item["artifacts"]
-              subprocess.run([sys.executable, "-m", "factverse_manager.cli", "upload", paths["video"], paths["metadata"]], check=True)
-          PY
+      - name: Publishing remains manual after review
+        run: echo "Automatic publishing is intentionally disabled. Review each package and approve metadata manually before using the upload CLI."
       - name: Send optional completion notification
         if: always()
         env:
