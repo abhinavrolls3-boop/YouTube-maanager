@@ -10,6 +10,7 @@ from .library import all_topics, get_topic
 from .model_gateway import draft_fact
 from .planning import build_plan
 from .render import render_video
+from .narration import add_narration
 from .youtube_upload import upload_video
 
 def _write_json(path, data):
@@ -22,10 +23,18 @@ def render_fact(fact, safe_slug):
     video_path = f"output/{safe_slug}.mp4"
     thumbnail_path = f"output/{safe_slug}_thumbnail.png"
     video, thumbnail = render_video(fact.title, fact.explanation, video_path, thumbnail_path)
+    narration_status = "disabled"
+    if __import__("os").getenv("ENABLE_NARRATION", "false").lower() == "true":
+        try:
+            add_narration(video, fact.narration)
+            narration_status = "generated_local_tts"
+        except Exception as exc:
+            narration_status = "unavailable: " + str(exc)
     metadata = make_metadata(fact)
     metadata["narration"] = fact.narration
     metadata["topic_slug"] = safe_slug
     metadata["human_fact_check_required"] = True
+    metadata["narration_status"] = narration_status
     metadata_path = _write_json(f"output/{safe_slug}_metadata.json", metadata)
     return {"topic": safe_slug, "video": video, "thumbnail": thumbnail, "metadata": metadata_path}
 
