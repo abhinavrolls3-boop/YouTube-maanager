@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 from .planning import build_plan
 from .quality import validate_package
-from .library import get_topic
 from .model_gateway import draft_fact
 
 def run_batch(days=1, start_date=None, output_dir="output"):
@@ -31,6 +30,9 @@ def run_batch(days=1, start_date=None, output_dir="output"):
             else:
                 result = render_topic(slug)
             quality = validate_package(result["video"], result["thumbnail"], result["metadata"])
+            metadata = json.loads(Path(result["metadata"]).read_text(encoding="utf-8"))
+            if os.getenv("ENABLE_NARRATION", "false").lower() == "true" and metadata.get("narration_status", "").startswith("unavailable"):
+                warnings.append("Voice narration could not be generated; output may be silent.")
             results.append({"date": item["date"], "topic": slug, "source": source,
                             "status": "ready_for_review" if quality["ok"] else "needs_attention",
                             "warnings": warnings, "artifacts": result, "quality": quality})
