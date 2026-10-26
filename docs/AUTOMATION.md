@@ -1,7 +1,7 @@
 # Daily automation
 
 ## What it does
-The scheduled GitHub Actions workflow is configured for 03:30 UTC (09:00 India time), subject to GitHub providing a runner. It installs the free local espeak-ng speech engine, runs tests, prepares a video package with attempted English voice narration and a review report, optionally attempts an AI-assisted draft, uploads run artifacts for seven days, and can send a completion webhook if configured. A manual run can prepare 1–3 topics.
+The scheduled GitHub Actions workflow is configured for 03:30 UTC (09:00 India time), subject to GitHub providing a runner. It installs the free local espeak-ng speech engine, runs tests, prepares a video package with attempted English voice narration and a review report, optionally attempts an AI-assisted draft, uploads run artifacts for seven days, and can send a completion webhook if configured. It does not publish videos automatically. A manual run can prepare 1–3 topics.
 
 ## Source and fact review
 Curated topics include source URLs in metadata. Use `PYTHONPATH=src python -m factverse_manager.cli sources output/<topic>_metadata.json` to check whether source URLs respond. Network reachability is not proof that a source supports a claim. The package checker flags missing source URLs, and every batch writes a SHA-256 artifact manifest. The workflow verifies these hashes before optional upload. A human must open the sources and verify each claim. AI-generated drafts currently do not include independently researched citations and should not be automatically published.
@@ -9,10 +9,11 @@ Curated topics include source URLs in metadata. Use `PYTHONPATH=src python -m fa
 ## Optional AI drafting
 To use the configured OpenAI-compatible OmniRoute route, add repository Actions secret `OMNIROUTE_API_KEY`, repository variables `OMNIROUTE_BASE_URL` and `OMNIROUTE_MODEL`, and set `ENABLE_AI_DRAFTS=true`. The route may incur charges or have quotas; verify your route and budget first. If drafting fails, the job falls back to a curated offline fact. AI output is unverified and needs independent fact-checking. The current tool does not perform live source research.
 
-## Optional unattended unlisted upload
-Uploads are disabled unless BOTH repository variables `ENABLE_YOUTUBE_UPLOAD=true` and `APPROVE_AUTOMATED_UNLISTED_UPLOAD=true` are set. You must also add a valid authorized-user OAuth JSON as Actions secret `YOUTUBE_TOKEN_JSON`. The credential must belong to a channel you control and include a refresh token with YouTube upload scope. Never paste it into chat or commit it. See `docs/YOUTUBE_SETUP.md`.
+## Upload safety (manual approval required)
 
-If explicitly enabled, the workflow uploads generated packages as **unlisted**, not public. The uploader also rejects any public visibility setting and blocks packages without source URLs. It never automatically changes videos to public. The upload history is cached on a best-effort basis; GitHub may evict caches, so this is not a durable database or a perfect cross-run duplicate guarantee. Inspect uploads in YouTube Studio before making them public.
+Unattended publishing is intentionally disabled. Every generated metadata file starts with `human_review_status: needs_review` and `originality_check_status: needs_review`. Before uploading, a person must inspect the actual video, confirm each factual claim against relevant sources, check that narration/visuals are original or properly licensed, and verify audience suitability. Only then may the metadata be manually changed to `human_review_status: approved` and `originality_check_status: passed`. These fields are an explicit human checklist, not an automated proof of originality.
+
+The uploader accepts only `private` or `unlisted` visibility, requires source URLs and both approval fields, blocks exact video-file duplicates recorded in its local history, and defaults to at most **one upload per UTC day** (`MAX_UPLOADS_PER_DAY`). The history is local/best-effort, not a durable global database, so it cannot guarantee cross-run duplicate prevention if history is lost. Review the final video in YouTube Studio before any public release.
 
 ## Optional notifications
 Add a trusted webhook URL as Actions secret `NOTIFY_WEBHOOK_URL`. Only operational counts are sent. If it is absent, the workflow continues without sending a notification.
