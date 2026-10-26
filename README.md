@@ -6,7 +6,7 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 - Five curated offline science/nature topics with source URLs in metadata.
 - Vertical MP4 motion graphics, thumbnail, metadata, narration text and timed SRT subtitles.
 - Optional free local English TTS in the daily workflow using espeak-ng; failure is recorded and may leave a silent video.
-- One-week calendar, bounded batch production, package preflight checks and JSON review report.
+- One-week calendar, bounded batch production, package preflight checks, JSON review report, and SHA-256 artifact integrity manifest.
 - Missing source URLs are flagged. A separate command checks URL reachability but cannot verify claims.
 - Offline YouTube Studio CSV analytics summaries.
 - Optional OmniRoute model drafts, disabled unless configured.
@@ -19,6 +19,7 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 - `PYTHONPATH=src python -m factverse_manager.cli batch --days 1`
 - `PYTHONPATH=src python -m factverse_manager.cli render octopus-hearts`
 - `PYTHONPATH=src python -m factverse_manager.cli sources output/octopus-hearts_metadata.json`
+- `PYTHONPATH=src python -m factverse_manager.cli verify-manifest output/artifact_manifest.json`
 - `PYTHONPATH=src python -m factverse_manager.cli analytics path/to/youtube-studio-export.csv`
 - `PYTHONPATH=src python -m factverse_manager.cli draft "ocean science"`
 
