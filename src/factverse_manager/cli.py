@@ -13,6 +13,7 @@ from .render import render_video
 from .narration import add_narration
 from .source_check import check_sources
 from .subtitles import write_srt
+from .manifest import verify_manifest
 from .youtube_upload import upload_video
 
 def _write_json(path, data):
@@ -76,6 +77,8 @@ def main():
     check_parser.add_argument("metadata")
     sources_parser = sub.add_parser("sources", help="check whether source URLs are reachable")
     sources_parser.add_argument("metadata", help="metadata JSON containing source_urls")
+    manifest_parser = sub.add_parser("verify-manifest", help="verify generated artifact hashes")
+    manifest_parser.add_argument("manifest", help="artifact_manifest.json path")
     analytics_parser = sub.add_parser("analytics", help="summarize a YouTube Studio CSV export")
     analytics_parser.add_argument("csv_path", help="path to CSV file")
     args = parser.parse_args()
@@ -111,6 +114,11 @@ def main():
         path = _write_json("output/source_check.json", result)
         print(json.dumps({"report": path, "summary": result}, indent=2, ensure_ascii=False))
         if result["total"] and result["reachable"] != result["total"]:
+            raise SystemExit(1)
+    elif args.command == "verify-manifest":
+        result = verify_manifest(args.manifest)
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        if not result["ok"]:
             raise SystemExit(1)
     elif args.command == "analytics":
         result = analyze_csv(args.csv_path)
