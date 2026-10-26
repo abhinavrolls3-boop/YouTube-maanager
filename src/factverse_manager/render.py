@@ -1,6 +1,7 @@
 """Render lightweight animated motion graphics and a thumbnail."""
 from pathlib import Path
 import math
+import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import imageio.v2 as imageio
 W, H = 720, 1280
@@ -46,6 +47,6 @@ def render_video(title, explanation, output="output/factverse_sample.mp4", thumb
     total=seconds*fps; make_frame(0,total,title,explanation).save(thumb)
     writer=imageio.get_writer(str(out),fps=fps,codec="libx264",macro_block_size=16,ffmpeg_log_level="error",quality=7)
     try:
-        for i in range(total): writer.append_data(make_frame(i,total,title,explanation))
+        for i in range(total): writer.append_data(np.asarray(make_frame(i,total,title,explanation)))
     finally: writer.close()
     return str(out), str(thumb)
