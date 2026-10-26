@@ -1,0 +1,48 @@
+name: FactVerse daily automation
+on:
+  schedule:
+    - cron: "30 3 * * *"
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "How many topics to prepare (1-3)"
+        required: true
+        default: "1"
+        type: choice
+        options:
+          - "1"
+          - "2"
+          - "3"
+permissions:
+  contents: read
+concurrency:
+  group: factverse-daily-automation
+  cancel-in-progress: false
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run automated tests
+        env:
+          PYTHONPATH: src
+        run: pytest -q
+      - name: Prepare daily videos and quality report
+        env:
+          PYTHONPATH: src
+          DAYS: "${{ inputs.days || '1' }}"
+        run: python -m factverse_manager.cli batch --days "$DAYS"
+      - name: Upload production artifacts and report
+        uses: actions/upload-artifact@v4
+        with:
+          name: factverse-daily-${{ github.run_id }}
+          path: output/
+          if-no-files-found: error
+          retention-days: 3
