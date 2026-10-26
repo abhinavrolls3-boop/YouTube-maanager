@@ -16,3 +16,23 @@ def test_upload_blocks_missing_sources_before_api_call(tmp_path, monkeypatch):
     monkeypatch.setenv("UPLOAD_PRIVACY", "unlisted")
     with pytest.raises(RuntimeError, match="source_urls"):
         upload_video(str(video), {"title":"Fact", "source_urls":[]})
+
+def test_upload_requires_human_review_before_api_call(tmp_path, monkeypatch):
+    video = tmp_path / "video.mp4"
+    video.write_bytes(b"video")
+    monkeypatch.setenv("ENABLE_UPLOAD", "true")
+    monkeypatch.setenv("UPLOAD_PRIVACY", "unlisted")
+    metadata = {"title":"Fact", "description":"desc", "source_urls":["https://example.org"],
+                "human_review_status":"needs_review", "originality_check_status":"passed"}
+    with pytest.raises(RuntimeError, match="human_review_status"):
+        upload_video(str(video), metadata)
+
+def test_upload_requires_originality_approval_before_api_call(tmp_path, monkeypatch):
+    video = tmp_path / "video.mp4"
+    video.write_bytes(b"video")
+    monkeypatch.setenv("ENABLE_UPLOAD", "true")
+    monkeypatch.setenv("UPLOAD_PRIVACY", "unlisted")
+    metadata = {"title":"Fact", "description":"desc", "source_urls":["https://example.org"],
+                "human_review_status":"approved", "originality_check_status":"needs_review"}
+    with pytest.raises(RuntimeError, match="originality_check_status"):
+        upload_video(str(video), metadata)
