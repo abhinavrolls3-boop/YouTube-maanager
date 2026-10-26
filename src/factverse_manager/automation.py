@@ -5,6 +5,7 @@ from pathlib import Path
 from .planning import build_plan
 from .quality import validate_package
 from .model_gateway import draft_fact
+from .manifest import create_manifest
 
 def run_batch(days=1, start_date=None, output_dir="output"):
     root = Path(output_dir).resolve()
@@ -38,8 +39,16 @@ def run_batch(days=1, start_date=None, output_dir="output"):
                             "warnings": warnings, "artifacts": result, "quality": quality})
         except Exception as exc:
             results.append({"date": item["date"], "topic": slug, "status": "failed", "error": f"{type(exc).__name__}: {exc}"})
+    artifact_paths = []
+    for item in results:
+        for key in ("video", "thumbnail", "metadata", "subtitles"):
+            path = item.get("artifacts", {}).get(key)
+            if path:
+                artifact_paths.append(path)
+    manifest_path = create_manifest(artifact_paths, root / "artifact_manifest.json")
     report = {"items": results, "successful": sum(x["status"] == "ready_for_review" for x in results),
               "failed": sum(x["status"] == "failed" for x in results), "publishing_enabled": False,
+              "artifact_manifest": manifest_path,
               "note": "This batch does not publish videos. Review each claim and output before uploading."}
     report_path = root / "automation_report.json"
     report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
