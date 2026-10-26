@@ -24,3 +24,8 @@ Add a trusted webhook URL as Actions secret `NOTIFY_WEBHOOK_URL`. Only operation
 - The built-in facts are a starter library, not live research. A URL check cannot verify factual accuracy or source relevance.
 - Analytics requires a CSV exported by you; it does not connect to channel or competitor analytics on its own.
 - No free AI quota, daily runtime, views, or earnings are guaranteed.
+
+
+## Review workflow
+
+Every batch creates a `*_review.json` checklist beside the metadata and includes it in the artifact manifest. The checklist starts with every item unchecked. Review factual support, originality, asset rights, metadata accuracy, audience suitability, and whether synthetic-content disclosure is required. After you personally complete the review, run `PYTHONPATH=src python -m factverse_manager.cli approve output/<topic>_metadata.json --confirm-human-review --confirm-originality`. This records an approval timestamp. Do not run the command unless you have actually performed both reviews.
