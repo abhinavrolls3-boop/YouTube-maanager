@@ -1,0 +1,31 @@
+name: Build FactVerse sample
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run tests
+        env:
+          PYTHONPATH: src
+        run: pytest -q
+      - name: Render sample video
+        env:
+          PYTHONPATH: src
+        run: python -m factverse_manager.cli
+      - uses: actions/upload-artifact@v4
+        with:
+          name: factverse-sample
+          path: output/
+          if-no-files-found: error
+          retention-days: 3
