@@ -54,6 +54,19 @@ jobs:
           OMNIROUTE_BASE_URL: "${{ vars.OMNIROUTE_BASE_URL }}"
           OMNIROUTE_MODEL: "${{ vars.OMNIROUTE_MODEL }}"
         run: python -m factverse_manager.cli batch --days "$DAYS"
+      - name: Verify generated artifact integrity
+        env:
+          PYTHONPATH: src
+        run: |
+          python -m factverse_manager.cli verify-manifest output/artifact_manifest.json
+          python - <<'PY'
+          import json
+          report = json.load(open("output/automation_report.json", encoding="utf-8"))
+          print("Successful packages:", report.get("successful", 0))
+          print("Failed packages:", report.get("failed", 0))
+          if report.get("successful", 0) < 1:
+              raise SystemExit("No packages passed preflight. Publishing is blocked.")
+          PY
       - name: Upload packages as unlisted videos (explicit opt-in only)
         if: vars.ENABLE_YOUTUBE_UPLOAD == 'true' && vars.APPROVE_AUTOMATED_UNLISTED_UPLOAD == 'true'
         env:
