@@ -12,6 +12,7 @@ from .planning import build_plan
 from .render import render_video
 from .narration import add_narration
 from .source_check import check_sources
+from .subtitles import write_srt
 from .youtube_upload import upload_video
 
 def _write_json(path, data):
@@ -34,13 +35,15 @@ def render_fact(fact, safe_slug):
             narration_status = "generated_local_tts"
         except Exception as exc:
             narration_status = "unavailable: " + str(exc)
+    subtitle_path = write_srt(fact.narration, str(output_dir / f"{safe_slug}.srt"), duration=18)
     metadata = make_metadata(fact)
+    metadata["subtitle_path"] = subtitle_path
     metadata["narration"] = fact.narration
     metadata["topic_slug"] = safe_slug
     metadata["human_fact_check_required"] = True
     metadata["narration_status"] = narration_status
     metadata_path = _write_json(str(output_dir / f"{safe_slug}_metadata.json"), metadata)
-    return {"topic": safe_slug, "video": video, "thumbnail": thumbnail, "metadata": metadata_path}
+    return {"topic": safe_slug, "video": video, "thumbnail": thumbnail, "metadata": metadata_path, "subtitles": subtitle_path}
 
 def render_topic(slug=None):
     topic = get_topic(slug) if slug else None
