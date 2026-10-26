@@ -36,3 +36,20 @@ def test_upload_requires_originality_approval_before_api_call(tmp_path, monkeypa
                 "human_review_status":"approved", "originality_check_status":"needs_review"}
     with pytest.raises(RuntimeError, match="originality_check_status"):
         upload_video(str(video), metadata)
+
+def test_upload_daily_cap_blocks_before_api_call(tmp_path, monkeypatch):
+    import json
+    from datetime import datetime, timezone
+    video = tmp_path / "video.mp4"
+    video.write_bytes(b"video")
+    history = tmp_path / "history.json"
+    history.write_text(json.dumps({"uploads":[{"sha256":"other","video_id":"x","title":"old",
+        "uploaded_at":datetime.now(timezone.utc).isoformat()}]}))
+    monkeypatch.setenv("ENABLE_UPLOAD", "true")
+    monkeypatch.setenv("UPLOAD_PRIVACY", "unlisted")
+    monkeypatch.setenv("UPLOAD_HISTORY", str(history))
+    monkeypatch.setenv("MAX_UPLOADS_PER_DAY", "1")
+    metadata = {"title":"Fact", "description":"desc", "source_urls":["https://example.org"],
+                "human_review_status":"approved", "originality_check_status":"passed"}
+    with pytest.raises(RuntimeError, match="Daily upload safety limit"):
+        upload_video(str(video), metadata)
