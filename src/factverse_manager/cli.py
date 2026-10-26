@@ -11,6 +11,7 @@ from .model_gateway import draft_fact
 from .planning import build_plan
 from .render import render_video
 from .narration import add_narration
+from .source_check import check_sources
 from .youtube_upload import upload_video
 
 def _write_json(path, data):
@@ -70,6 +71,8 @@ def main():
     check_parser.add_argument("video")
     check_parser.add_argument("thumbnail")
     check_parser.add_argument("metadata")
+    sources_parser = sub.add_parser("sources", help="check whether source URLs are reachable")
+    sources_parser.add_argument("metadata", help="metadata JSON containing source_urls")
     analytics_parser = sub.add_parser("analytics", help="summarize a YouTube Studio CSV export")
     analytics_parser.add_argument("csv_path", help="path to CSV file")
     args = parser.parse_args()
@@ -98,6 +101,13 @@ def main():
         result = validate_package(args.video, args.thumbnail, args.metadata)
         print(json.dumps(result, indent=2, ensure_ascii=False))
         if not result["ok"]:
+            raise SystemExit(1)
+    elif args.command == "sources":
+        metadata = json.loads(Path(args.metadata).read_text(encoding="utf-8"))
+        result = check_sources(metadata.get("source_urls", []))
+        path = _write_json("output/source_check.json", result)
+        print(json.dumps({"report": path, "summary": result}, indent=2, ensure_ascii=False))
+        if result["total"] and result["reachable"] != result["total"]:
             raise SystemExit(1)
     elif args.command == "analytics":
         result = analyze_csv(args.csv_path)
