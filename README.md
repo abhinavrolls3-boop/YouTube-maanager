@@ -8,6 +8,7 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 - Optional free local English TTS in the daily workflow using espeak-ng; failure is recorded and may leave a silent video.
 - One-week calendar, bounded batch production, package preflight checks, JSON review report, and SHA-256 artifact integrity manifest.
 - Missing source URLs are flagged. A separate command checks URL reachability but cannot verify claims.
+- Each batch now creates a per-claim evidence register; every claim starts unverified and needs human evidence review.
 - Offline YouTube Studio CSV analytics summaries.
 - Optional OmniRoute model drafts, disabled unless configured.
 - Scheduled GitHub Actions workflow, artifacts, optional webhook notifications.
@@ -22,6 +23,9 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 - `PYTHONPATH=src python -m factverse_manager.cli verify-manifest output/artifact_manifest.json`
 - `PYTHONPATH=src python -m factverse_manager.cli analytics path/to/youtube-studio-export.csv`
 - `PYTHONPATH=src python -m factverse_manager.cli review output/astronauts-float_metadata.json`
+- `PYTHONPATH=src python -m factverse_manager.cli evidence output/astronauts-float_metadata.json`
+- Edit the generated `output/astronauts-float_evidence.json`: add a supporting `evidence_url`, quote/location, and set each reviewed claim assessment to `supported` only if the source actually supports it.
+- After checking every claim and source: `PYTHONPATH=src python -m factverse_manager.cli evidence-approve output/astronauts-float_evidence.json --confirm-each-claim --confirm-sources`
 - After personally reviewing the actual video and its sources: `PYTHONPATH=src python -m factverse_manager.cli approve output/astronauts-float_metadata.json --confirm-human-review --confirm-originality`
 - `PYTHONPATH=src python -m factverse_manager.cli draft "ocean science"`
 
