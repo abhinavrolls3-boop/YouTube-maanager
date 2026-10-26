@@ -15,4 +15,4 @@ The scheduled GitHub Actions workflow runs at 03:30 UTC (09:00 India time) when 
 1. Confirm Actions are enabled in the repository.
 2. Open the latest successful run and check its artifact.
 3. If you want notifications, add a repository Actions secret named `NOTIFY_WEBHOOK_URL` for a trusted webhook endpoint; the current workflow does not send notifications unless explicitly configured.
-4. To enable AI-assisted drafts in a later step, add provider credentials as repository Actions secrets and configure the provider endpoint/model. Never commit keys.
+4. To enable optional AI-assisted script drafts, set repository Actions secret `OMNIROUTE_API_KEY`, repository variables `OMNIROUTE_BASE_URL` (OpenAI-compatible API base URL) and `OMNIROUTE_MODEL`, then set `ENABLE_AI_DRAFTS` to `true`. The scheduled job will try a draft and fall back to the curated offline topic if the provider fails. These drafts are unverified and still require fact-checking. Provider quotas/costs depend on your OmniRoute account; do not enable this until you have confirmed the route is within your budget. Never commit keys.
