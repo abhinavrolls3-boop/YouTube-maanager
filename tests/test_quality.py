@@ -19,3 +19,22 @@ def test_empty_title_fails(tmp_path):
     result=validate_package(video,thumb,metadata)
     assert not result["ok"]
     assert any("title" in issue.lower() for issue in result["issues"])
+
+def test_invalid_source_url_fails_package_check(tmp_path):
+    video=tmp_path/"clip.mp4"; video.write_bytes(b"x")
+    thumb=tmp_path/"thumb.png"; Image.new("RGB",(10,10)).save(thumb)
+    metadata=tmp_path/"metadata.json"
+    metadata.write_text(json.dumps({"title":"Fact","description":"Desc","tags":[],"source_urls":["javascript:alert(1)"]}))
+    result=validate_package(video,thumb,metadata)
+    assert not result["ok"]
+    assert any("Invalid source URL" in issue for issue in result["issues"])
+
+def test_review_needed_is_warning_not_fake_approval(tmp_path):
+    video=tmp_path/"clip.mp4"; video.write_bytes(b"x")
+    thumb=tmp_path/"thumb.png"; Image.new("RGB",(10,10)).save(thumb)
+    metadata=tmp_path/"metadata.json"
+    metadata.write_text(json.dumps({"title":"Fact","description":"Desc","tags":[],"source_urls":["https://example.org/fact"]}))
+    result=validate_package(video,thumb,metadata)
+    assert result["ok"]
+    assert result["warnings"]
+    assert result["human_review_required"]
