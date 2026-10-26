@@ -9,7 +9,7 @@ def build_plan(start_date=None, days=7):
     topics = all_topics()
     plan = []
     for offset in range(days):
-        topic = topics[offset % len(topics)]
+        topic = topics[(start.toordinal() + offset) % len(topics)]
         plan.append({"date": (start + timedelta(days=offset)).isoformat(),
                      "topic": topic.slug, "title": topic.fact.title,
                      "review_required": True})
