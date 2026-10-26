@@ -1,0 +1,48 @@
+"""Small curated fact library; works offline and does not call a model API."""
+from dataclasses import dataclass
+from .content import Fact, validate_fact
+
+@dataclass(frozen=True)
+class Topic:
+    slug: str
+    fact: Fact
+
+TOPICS = (
+    Topic("astronauts-float", Fact(
+        "Why do astronauts look like they float?",
+        "Astronauts appear to float because they and their spacecraft are falling around Earth together.",
+        "Gravity is still acting in orbit. The spacecraft moves forward fast enough to keep falling around Earth instead of hitting the ground. Astronauts experience this continuous free fall as weightlessness.",
+        ("space", "science", "facts", "astronauts", "education"))),
+    Topic("octopus-hearts", Fact(
+        "How many hearts does an octopus have?",
+        "An octopus has three hearts, and two help move blood through its gills.",
+        "Two hearts pump blood to the gills, where it picks up oxygen. A third heart sends oxygen-rich blood to the rest of the body. This is one of the unusual features of octopus biology.",
+        ("animals", "octopus", "science", "facts", "education"))),
+    Topic("venus-day", Fact(
+        "Is a day on Venus longer than its year?",
+        "Yes. Venus takes longer to rotate once than it takes to orbit the Sun.",
+        "Venus rotates very slowly. One rotation takes about 243 Earth days, while one trip around the Sun takes about 225 Earth days. That makes its rotation period longer than its orbital period.",
+        ("space", "venus", "astronomy", "facts", "science"))),
+    Topic("sharks-older", Fact(
+        "Were sharks around before trees?",
+        "Sharks as a group are older than the first trees.",
+        "Shark ancestors appeared in the fossil record hundreds of millions of years ago. The earliest known trees appeared later, so sharks predate trees in Earth's history. Scientists update these dates as new fossils are found.",
+        ("sharks", "animals", "history", "science", "facts"))),
+    Topic("honey", Fact(
+        "Why can honey last a very long time?",
+        "Honey resists many microbes because it has little available water and is naturally acidic.",
+        "Honey's low water availability, acidity, and other properties make it difficult for many microbes to grow. It can still become contaminated or change, so storage and food safety matter.",
+        ("food", "science", "honey", "facts", "education"))),
+)
+
+def all_topics():
+    for topic in TOPICS:
+        validate_fact(topic.fact)
+    return TOPICS
+
+def get_topic(slug: str) -> Topic:
+    for topic in all_topics():
+        if topic.slug == slug:
+            return topic
+    choices = ", ".join(t.slug for t in TOPICS)
+    raise ValueError(f"Unknown topic '{slug}'. Available topics: {choices}")
