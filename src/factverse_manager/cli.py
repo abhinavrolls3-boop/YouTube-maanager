@@ -5,6 +5,7 @@ from pathlib import Path
 from .analytics import analyze_csv
 from .content import SAMPLE_FACT, make_metadata
 from .library import all_topics, get_topic
+from .planning import build_plan
 from .render import render_video
 
 def _write_json(path, data):
@@ -34,6 +35,9 @@ def main():
     sub.add_parser("topics", help="list built-in offline topics")
     render_parser = sub.add_parser("render", help="render one built-in topic")
     render_parser.add_argument("topic", help="topic slug shown by the topics command")
+    plan_parser = sub.add_parser("plan", help="create an offline content calendar")
+    plan_parser.add_argument("--start", help="start date in YYYY-MM-DD format")
+    plan_parser.add_argument("--days", type=int, default=7, help="number of days (1-31)")
     analytics_parser = sub.add_parser("analytics", help="summarize a YouTube Studio CSV export")
     analytics_parser.add_argument("csv_path", help="path to CSV file")
     args = parser.parse_args()
@@ -41,6 +45,10 @@ def main():
         print(json.dumps([{"slug": t.slug, "title": t.fact.title} for t in all_topics()], indent=2, ensure_ascii=False))
     elif args.command == "render":
         render_topic(args.topic)
+    elif args.command == "plan":
+        plan = build_plan(args.start, args.days)
+        path = _write_json("output/content_plan.json", plan)
+        print(json.dumps({"plan": path, "items": plan}, indent=2, ensure_ascii=False))
     elif args.command == "analytics":
         result = analyze_csv(args.csv_path)
         path = _write_json("output/analytics.json", result)
