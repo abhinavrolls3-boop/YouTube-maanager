@@ -14,6 +14,8 @@ A phone-manageable, zero-budget-first toolkit for preparing FactVerse videos. Th
 ## What is implemented
 - Five curated offline science/nature topics (no model API required).
 - One-week content calendar generation with review-required flags.
+- Scheduled daily production workflow that builds a video package and review report.
+- Pre-publish package checks and optional webhook completion notifications.
 - Local SHA-256 upload history that blocks repeat uploads of the exact same video file.
 - MP4, vertical thumbnail, title/description/tags/hashtags and narration text metadata.
 - Tests for content validation, topic selection, CSV analytics and real render artifact creation.
@@ -25,6 +27,7 @@ A phone-manageable, zero-budget-first toolkit for preparing FactVerse videos. Th
 Run from the repository root:
 - PYTHONPATH=src python -m factverse_manager.cli topics
 - PYTHONPATH=src python -m factverse_manager.cli plan --days 7 --start 2026-10-26
+- PYTHONPATH=src python -m factverse_manager.cli batch --days 1
 - PYTHONPATH=src python -m factverse_manager.cli render octopus-hearts
 - PYTHONPATH=src python -m factverse_manager.cli analytics path/to/youtube-studio-export.csv
 
@@ -44,4 +47,4 @@ Without a subcommand, the CLI renders the original sample fact.
 4. Test an unlisted upload only after completing the OAuth setup guide.
 5. Enable any scheduled workflow only after repeatability, quota limits, duplicate prevention, and notifications are verified.
 
-Read the documentation in docs/ROADMAP.md, docs/CONTENT_WORKFLOW.md, docs/ANALYTICS.md, docs/ARCHITECTURE.md, and docs/YOUTUBE_SETUP.md.
+Read docs/AUTOMATION.md, docs/ROADMAP.md, docs/CONTENT_WORKFLOW.md, docs/ANALYTICS.md, docs/ARCHITECTURE.md, and docs/YOUTUBE_SETUP.md.
