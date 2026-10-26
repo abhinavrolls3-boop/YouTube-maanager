@@ -1,5 +1,7 @@
 name: Build FactVerse sample
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       topic:
@@ -38,7 +40,7 @@ jobs:
       - name: Render selected topic
         env:
           PYTHONPATH: src
-          TOPIC: ${{ inputs.topic }}
+          TOPIC: "${{ inputs.topic || 'sample' }}"
         run: |
           if [ "$TOPIC" = "sample" ]; then
             python -m factverse_manager.cli
@@ -47,7 +49,7 @@ jobs:
           fi
       - uses: actions/upload-artifact@v4
         with:
-          name: factverse-${{ inputs.topic }}
+          name: factverse-${{ inputs.topic || 'sample' }}
           path: output/
           if-no-files-found: error
           retention-days: 3
