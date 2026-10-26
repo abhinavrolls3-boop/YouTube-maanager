@@ -7,7 +7,9 @@ def test_csv_summary_sorts_videos_and_calculates_metrics(tmp_path):
     csv_file.write_text('Video title,Views,Impressions,Impressions click-through rate\nA,100,1000,5.0%\nB,250,2000,4.0%\n', encoding="utf-8")
     result = analyze_csv(csv_file)
     assert result["metrics"]["views"]["total"] == 350
-    assert result["top_videos_by_views"][0] == {"title": "B", "views": 250}
+    assert result["top_videos_by_views"][0]["title"] == "B"
+    assert result["top_videos_by_views"][0]["views"] == 250
+    assert result["top_videos_by_views"][0]["ctr"] == 4.0
     assert result["experiments"]
     json.dumps(result)
 
