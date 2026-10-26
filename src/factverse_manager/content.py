@@ -8,6 +8,7 @@ class Fact:
     narration: str
     explanation: str
     tags: tuple[str, ...]
+    sources: tuple[str, ...] = ()
 
 SAMPLE_FACT = Fact(
     title="Why do astronauts look like they float?",
@@ -28,4 +29,4 @@ def validate_fact(fact: Fact) -> None:
 def make_metadata(fact: Fact) -> dict:
     validate_fact(fact)
     hashtags = " ".join("#" + re.sub(r"[^A-Za-z0-9]", "", tag.title()) for tag in fact.tags[:5])
-    return {"title": fact.title, "description": f"{fact.explanation}\n\nFollow FactVerse for more bite-sized facts.\n\n{hashtags}", "tags": list(fact.tags), "hashtags": hashtags, "categoryId": "27"}
+    return {"title": fact.title, "description": f"{fact.explanation}\n\nFollow FactVerse for more bite-sized facts.\n\n{hashtags}", "tags": list(fact.tags), "hashtags": hashtags, "categoryId": "27", "source_urls": list(fact.sources)}
