@@ -28,6 +28,10 @@ def upload_video(video_path: str, metadata: dict, client_secret_file: str = "cli
     sources = metadata.get("source_urls", [])
     if not isinstance(sources, list) or not sources:
         raise RuntimeError("Upload blocked: metadata must include source_urls for human verification.")
+    if metadata.get("human_review_status") != "approved":
+        raise RuntimeError("Upload blocked: set human_review_status to approved only after checking factual accuracy, source relevance, originality, copyright, and audience suitability.")
+    if metadata.get("originality_check_status") != "passed":
+        raise RuntimeError("Upload blocked: originality_check_status must be passed after reviewing the video for reused or repetitive content.")
     digest = file_sha256(video)
     history_path = os.getenv("UPLOAD_HISTORY", "output/upload_history.json")
     if has_uploaded_hash(digest, history_path):
