@@ -3,6 +3,8 @@ import argparse
 import json
 from pathlib import Path
 from .analytics import analyze_csv
+from .automation import run_batch
+from .quality import validate_package
 from .content import SAMPLE_FACT, make_metadata
 from .library import all_topics, get_topic
 from .planning import build_plan
@@ -49,6 +51,14 @@ def main():
         plan = build_plan(args.start, args.days)
         path = _write_json("output/content_plan.json", plan)
         print(json.dumps({"plan": path, "items": plan}, indent=2, ensure_ascii=False))
+    elif args.command == "batch":
+        report, path = run_batch(args.days, args.start)
+        print(json.dumps({"report": path, "summary": report}, indent=2, ensure_ascii=False))
+    elif args.command == "check":
+        result = validate_package(args.video, args.thumbnail, args.metadata)
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        if not result["ok"]:
+            raise SystemExit(1)
     elif args.command == "analytics":
         result = analyze_csv(args.csv_path)
         path = _write_json("output/analytics.json", result)
