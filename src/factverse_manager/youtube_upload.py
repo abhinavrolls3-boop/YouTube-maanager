@@ -2,7 +2,8 @@
 from pathlib import Path
 import json
 import os
-from .state import file_sha256, has_uploaded_hash, record_upload
+from datetime import datetime, timezone
+from .state import file_sha256, has_uploaded_hash, load_history, record_upload
 
 def _credentials(client_secret_file):
     token_json = os.getenv("YOUTUBE_TOKEN_JSON", "").strip()
@@ -34,6 +35,24 @@ def upload_video(video_path: str, metadata: dict, client_secret_file: str = "cli
         raise RuntimeError("Upload blocked: originality_check_status must be passed after reviewing the video for reused or repetitive content.")
     digest = file_sha256(video)
     history_path = os.getenv("UPLOAD_HISTORY", "output/upload_history.json")
+    try:
+        daily_limit = int(os.getenv("MAX_UPLOADS_PER_DAY", "1"))
+    except ValueError as exc:
+        raise RuntimeError("MAX_UPLOADS_PER_DAY must be a positive integer.") from exc
+    if daily_limit < 1:
+        raise RuntimeError("MAX_UPLOADS_PER_DAY must be a positive integer.")
+    today = datetime.now(timezone.utc).date()
+    uploads_today = 0
+    for item in load_history(history_path)["uploads"]:
+        timestamp = item.get("uploaded_at")
+        if timestamp:
+            try:
+                if datetime.fromisoformat(timestamp.replace("Z", "+00:00")).date() == today:
+                    uploads_today += 1
+            except ValueError:
+                continue
+    if uploads_today >= daily_limit:
+        raise RuntimeError(f"Daily upload safety limit reached ({daily_limit} per UTC day).")
     if has_uploaded_hash(digest, history_path):
         raise RuntimeError("Duplicate upload blocked: this exact video file is already recorded in the local upload history.")
     from googleapiclient.discovery import build
