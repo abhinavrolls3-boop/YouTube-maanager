@@ -10,6 +10,7 @@ from .library import all_topics, get_topic
 from .model_gateway import draft_fact
 from .planning import build_plan
 from .render import render_video
+from .youtube_upload import upload_video
 
 def _write_json(path, data):
     path = Path(path)
@@ -48,6 +49,9 @@ def main():
     batch_parser = sub.add_parser("batch", help="render a bounded batch and produce a review report")
     batch_parser.add_argument("--start", help="start date in YYYY-MM-DD format")
     batch_parser.add_argument("--days", type=int, default=1, help="number of topics to render (1-31)")
+    upload_parser = sub.add_parser("upload", help="upload one reviewed video using YouTube OAuth")
+    upload_parser.add_argument("video")
+    upload_parser.add_argument("metadata")
     draft_parser = sub.add_parser("draft", help="generate an optional model-assisted script draft")
     draft_parser.add_argument("topic_hint", help="topic hint for the draft")
     check_parser = sub.add_parser("check", help="check a video, thumbnail and metadata package")
@@ -68,6 +72,10 @@ def main():
     elif args.command == "batch":
         report, path = run_batch(args.days, args.start)
         print(json.dumps({"report": path, "summary": report}, indent=2, ensure_ascii=False))
+    elif args.command == "upload":
+        metadata = json.loads(Path(args.metadata).read_text(encoding="utf-8"))
+        video_id = upload_video(args.video, metadata)
+        print(json.dumps({"video_id": video_id, "privacy": __import__("os").getenv("UPLOAD_PRIVACY", "unlisted")}, indent=2))
     elif args.command == "draft":
         fact = draft_fact(args.topic_hint)
         data = make_metadata(fact)
