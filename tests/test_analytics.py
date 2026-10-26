@@ -22,8 +22,8 @@ def test_empty_csv_rows_rejected(tmp_path):
 def test_analytics_handles_engagement_and_retention_fields(tmp_path):
     csv_file = tmp_path / "studio.csv"
     csv_file.write_text(
-        "Title,Views,Likes,Comments,Average view duration (seconds)\\n"
-        "A,100,10,2,15\\nB,50,7,1,20\\nC,20,2,0,9\\n",
+        "Title,Views,Likes,Comments,Average view duration (seconds)\n"
+        "A,100,10,2,15\nB,50,7,1,20\nC,20,2,0,9\n",
         encoding="utf-8")
     result = analyze_csv(csv_file)
     assert result["metrics"]["likes"]["total"] == 19
