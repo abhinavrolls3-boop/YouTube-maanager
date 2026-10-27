@@ -50,3 +50,23 @@ def test_approval_rejects_non_http_evidence_urls(tmp_path):
     open(path, "w", encoding="utf-8").write(json.dumps(data))
     with pytest.raises(ValueError):
         approve_evidence_register(path, True, True)
+
+def test_missing_linked_metadata_does_not_mark_register_approved(tmp_path):
+    register_path = tmp_path / "evidence.json"
+    register_path.write_text(json.dumps({
+        "metadata_path": str(tmp_path / "missing_metadata.json"),
+        "source_urls": ["https://example.org"],
+        "claims": [{
+            "claim_id": "C01",
+            "text": "A factual claim to review.",
+            "assessment": "supported",
+            "evidence_url": "https://example.org/evidence",
+            "evidence_quote_or_location": "Paragraph 2"
+        }],
+        "status": "needs_human_review"
+    }), encoding="utf-8")
+    with pytest.raises(ValueError, match="Linked metadata file does not exist"):
+        approve_evidence_register(str(register_path), True, True)
+    saved = json.loads(register_path.read_text(encoding="utf-8"))
+    assert saved["status"] == "needs_human_review"
+    assert saved.get("reviewed_at_utc") is None
