@@ -77,16 +77,6 @@ def validate_package(video_path, thumbnail_path, metadata_path):
         warnings.append("Originality and asset-rights review is still required.")
     subtitle_path = data.get("subtitle_path")
     subtitle_report = None
-    if subtitle_path:
-        try:
-            subtitle_file = Path(subtitle_path)
-            if not subtitle_file.is_absolute():
-                subtitle_file = metadata.parent / subtitle_file
-            subtitle_report = validate_srt(subtitle_file)
-            if not subtitle_report["ok"]:
-                issues.extend("Subtitle check: " + issue for issue in subtitle_report["issues"])
-        except (OSError, UnicodeError, ValueError) as exc:
-            issues.append(f"Subtitle file could not be checked: {exc}")
     video_probe = None
     if video.is_file() and video.stat().st_size:
         if video.suffix.lower() != ".mp4":
@@ -96,6 +86,17 @@ def validate_package(video_path, thumbnail_path, metadata_path):
                 video_probe = _inspect_video(video)
             except Exception as exc:
                 issues.append(f"Video cannot be decoded or fails vertical-video checks: {exc}")
+    if subtitle_path:
+        try:
+            subtitle_file = Path(subtitle_path)
+            if not subtitle_file.is_absolute():
+                subtitle_file = metadata.parent / subtitle_file
+            duration = video_probe.get("duration_seconds") if video_probe else None
+            subtitle_report = validate_srt(subtitle_file, duration_seconds=duration)
+            if not subtitle_report["ok"]:
+                issues.extend("Subtitle check: " + issue for issue in subtitle_report["issues"])
+        except (OSError, UnicodeError, ValueError) as exc:
+            issues.append(f"Subtitle file could not be checked: {exc}")
     if thumbnail.is_file() and thumbnail.stat().st_size:
         try:
             from PIL import Image
