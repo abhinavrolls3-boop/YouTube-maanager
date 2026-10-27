@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 from urllib.parse import urlparse
+from .subtitles import validate_srt
 
 
 def _inspect_video(path):
@@ -74,6 +75,15 @@ def validate_package(video_path, thumbnail_path, metadata_path):
         warnings.append("Human factual/source review is still required.")
     if data.get("originality_check_status") != "passed":
         warnings.append("Originality and asset-rights review is still required.")
+    subtitle_path = data.get("subtitle_path")
+    subtitle_report = None
+    if subtitle_path:
+        try:
+            subtitle_report = validate_srt(subtitle_path)
+            if not subtitle_report["ok"]:
+                issues.extend("Subtitle check: " + issue for issue in subtitle_report["issues"])
+        except (OSError, UnicodeError, ValueError) as exc:
+            issues.append(f"Subtitle file could not be checked: {exc}")
     video_probe = None
     if video.is_file() and video.stat().st_size:
         if video.suffix.lower() != ".mp4":
@@ -92,7 +102,7 @@ def validate_package(video_path, thumbnail_path, metadata_path):
             issues.append("Thumbnail is not a readable image.")
     return {
         "ok": not issues, "issues": issues, "warnings": warnings,
-        "source_urls": sources, "video_probe": video_probe,
+        "source_urls": sources, "video_probe": video_probe, "subtitle_report": subtitle_report,
         "human_review_required": True,
         "note": "Automated checks cannot verify factual accuracy, source relevance, copyright, or audience suitability.",
     }
