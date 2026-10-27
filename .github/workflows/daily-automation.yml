@@ -80,6 +80,38 @@ jobs:
           else
             echo "No report generated; inspect this workflow run's logs."
           fi
+      - name: Write run summary for phone-friendly status checks
+        if: always()
+        env:
+          REPORT_PATH: output/automation_report.json
+        run: |
+          {
+            echo "# FactVerse daily run"
+            echo
+            echo "- **Run:** [Open this run](https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID})"
+            echo "- **Schedule:** 09:00 India time (best-effort GitHub runner)"
+            echo "- **Publishing:** disabled; generated videos are drafts for review"
+            if [ -f "$REPORT_PATH" ]; then
+              python - <<'PY'
+          import json, os
+          report = json.load(open(os.environ["REPORT_PATH"], encoding="utf-8"))
+          print(f"- **Ready for review:** {report.get('successful', 0)}")
+          print(f"- **Failed:** {report.get('failed', 0)}")
+          print()
+          print("| Topic | Status | Notes |")
+          print("|---|---|---|")
+          for item in report.get("items", []):
+              notes = "; ".join(item.get("warnings", [])) or item.get("error", "")
+              notes = notes.replace("|", "\\|").replace("\n", " ")
+              print(f"| {item.get('topic', 'unknown')} | {item.get('status', 'unknown')} | {notes} |")
+          PY
+            else
+              echo "- **Report:** not created; inspect the run logs for the first failed step."
+            fi
+            echo
+            echo "## Get the generated files"
+            echo "Open this run and look under **Artifacts** for `factverse-daily-${GITHUB_RUN_ID}`. The artifact is temporary and expires after 7 days."
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Upload production artifacts and report
         if: always()
         uses: actions/upload-artifact@v4
