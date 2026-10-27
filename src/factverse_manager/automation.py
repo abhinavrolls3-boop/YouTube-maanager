@@ -91,7 +91,7 @@ def run_batch(days=1, start_date=None, output_dir="output"):
             except Exception as exc:
                 item.setdefault("warnings", []).append("Could not create review/evidence checklist: " + str(exc))
                 item["status"] = "needs_attention"
-        for key in ("video", "thumbnail", "metadata", "subtitles", "review_checklist", "evidence_register", "source_check", "research_leads"):
+        for key in ("video", "thumbnail", "metadata", "subtitles", "creative_brief", "review_checklist", "evidence_register", "source_check", "research_leads"):
             path = item.get("artifacts", {}).get(key)
             if path:
                 artifact_paths.append(path)
