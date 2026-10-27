@@ -159,6 +159,9 @@ def main():
         print(json.dumps({"evidence_register": args.register, "status": register["status"],
                           "reviewed_at_utc": register["reviewed_at_utc"]},
                          indent=2, ensure_ascii=False))
+    elif args.command is None:
+        # Preserve the documented no-argument sample-render workflow.
+        render_topic()
     else:
         parser.print_help()
 
