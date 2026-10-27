@@ -3,6 +3,7 @@ import argparse
 import json
 from pathlib import Path
 from .analytics import analyze_csv
+from .growth import growth_report
 from .automation import run_batch
 from .quality import validate_package
 from .content import SAMPLE_FACT, make_metadata
@@ -102,6 +103,8 @@ def main():
     manifest_parser.add_argument("manifest", help="artifact_manifest.json path")
     analytics_parser = sub.add_parser("analytics", help="summarize a YouTube Studio CSV export")
     analytics_parser.add_argument("csv_path", help="path to CSV file")
+    growth_parser = sub.add_parser("growth", help="create evidence-aware growth experiments from a Studio CSV")
+    growth_parser.add_argument("csv_path", help="path to YouTube Studio video-level CSV export")
     review_parser = sub.add_parser("review", help="create a human review checklist for one package")
     review_parser.add_argument("metadata", help="metadata JSON path")
     review_parser.add_argument("--output", help="optional checklist output path")
@@ -158,6 +161,10 @@ def main():
     elif args.command == "analytics":
         result = analyze_csv(args.csv_path)
         path = _write_json("output/analytics.json", result)
+        print(json.dumps({"report": path, "summary": result}, indent=2, ensure_ascii=False))
+    elif args.command == "growth":
+        result = growth_report(args.csv_path)
+        path = _write_json("output/growth_report.json", result)
         print(json.dumps({"report": path, "summary": result}, indent=2, ensure_ascii=False))
     elif args.command == "review":
         checklist, path = create_review_checklist(args.metadata, args.output)
