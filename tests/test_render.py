@@ -27,6 +27,8 @@ def test_scene_selection_matches_curated_fact_topics():
     assert scene_for_topic("Were sharks around before trees?") == "shark"
     assert scene_for_topic("Why can honey last a very long time?") == "honey"
     assert scene_for_topic("Why do astronauts look like they float?") == "space"
+    assert scene_for_topic("Is the Moon slowly moving away from Earth?") == "space"
+    assert scene_for_topic("What is Jupiter’s Great Red Spot?") == "space"
 
 
 def test_topic_scenes_are_visually_distinct():
