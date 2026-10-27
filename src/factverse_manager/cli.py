@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from .analytics import analyze_csv
 from .growth import growth_report
+from .creative import build_short_brief
 from .automation import run_batch
 from .quality import validate_package
 from .content import SAMPLE_FACT, make_metadata
@@ -65,6 +66,9 @@ def render_fact(fact, safe_slug):
     metadata["topic_slug"] = safe_slug
     metadata["human_fact_check_required"] = True
     metadata["narration_status"] = narration_status
+    metadata["shorts_creative_brief"] = build_short_brief(
+        fact.title, fact.narration, fact.explanation, fact.tags
+    )
     metadata_path = _write_json(str(output_dir / f"{safe_slug}_metadata.json"), metadata)
     return {"topic": safe_slug, "video": video, "thumbnail": thumbnail, "metadata": metadata_path, "subtitles": subtitle_path}
 
