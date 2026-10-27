@@ -37,3 +37,13 @@ def test_topic_scenes_are_visually_distinct():
     shark = make_frame(0, 10, "Were sharks around before trees?", "Sharks are an ancient group.")
     assert octopus.size == shark.size == (720, 1280)
     assert octopus.tobytes() != shark.tobytes()
+
+
+def test_caption_text_is_burned_into_frame():
+    from factverse_manager.render import make_frame
+
+    without_caption = make_frame(0, 10, "Sample title", "Sample explanation")
+    with_caption = make_frame(0, 10, "Sample title", "Sample explanation",
+                              caption_text="Astronauts float in orbit.")
+    assert without_caption.size == with_caption.size == (720, 1280)
+    assert without_caption.tobytes() != with_caption.tobytes()
