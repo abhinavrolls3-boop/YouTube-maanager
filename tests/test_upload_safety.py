@@ -63,3 +63,55 @@ def test_upload_daily_cap_blocks_before_api_call(tmp_path, monkeypatch):
                 "human_review_status":"approved", "originality_check_status":"passed", "evidence_review_status":"human_reviewed_supported"}
     with pytest.raises(RuntimeError, match="Daily upload safety limit"):
         upload_video(str(video), metadata)
+
+def _fully_reviewed_metadata(**overrides):
+    metadata = {
+        "title": "A reviewed science fact",
+        "description": "A short explanation with sources.",
+        "source_urls": ["https://example.org/fact"],
+        "human_review_status": "approved",
+        "originality_check_status": "passed",
+        "evidence_review_status": "human_reviewed_supported",
+    }
+    metadata.update(overrides)
+    return metadata
+
+
+def test_upload_rejects_invalid_source_urls(tmp_path, monkeypatch):
+    video = tmp_path / "video.mp4"
+    video.write_bytes(b"video")
+    monkeypatch.setenv("ENABLE_UPLOAD", "true")
+    monkeypatch.setenv("UPLOAD_PRIVACY", "unlisted")
+    monkeypatch.setenv("YOUTUBE_MADE_FOR_KIDS", "false")
+    with pytest.raises(RuntimeError, match="valid HTTP"):
+        upload_video(str(video), _fully_reviewed_metadata(source_urls=["javascript:alert(1)"]))
+
+
+def test_upload_requires_explicit_made_for_kids_setting(tmp_path, monkeypatch):
+    video = tmp_path / "video.mp4"
+    video.write_bytes(b"video")
+    monkeypatch.setenv("ENABLE_UPLOAD", "true")
+    monkeypatch.setenv("UPLOAD_PRIVACY", "unlisted")
+    monkeypatch.delenv("YOUTUBE_MADE_FOR_KIDS", raising=False)
+    with pytest.raises(RuntimeError, match="YOUTUBE_MADE_FOR_KIDS"):
+        upload_video(str(video), _fully_reviewed_metadata())
+
+
+def test_upload_rejects_missing_title_and_empty_video_before_api_call(tmp_path, monkeypatch):
+    video = tmp_path / "video.mp4"
+    video.write_bytes(b"video")
+    monkeypatch.setenv("ENABLE_UPLOAD", "true")
+    monkeypatch.setenv("UPLOAD_PRIVACY", "unlisted")
+    monkeypatch.setenv("YOUTUBE_MADE_FOR_KIDS", "false")
+    with pytest.raises(RuntimeError, match="title must"):
+        upload_video(str(video), _fully_reviewed_metadata(title=" "))
+
+
+def test_upload_rejects_non_mp4_file(tmp_path, monkeypatch):
+    video = tmp_path / "video.txt"
+    video.write_text("not a video")
+    monkeypatch.setenv("ENABLE_UPLOAD", "true")
+    monkeypatch.setenv("UPLOAD_PRIVACY", "unlisted")
+    monkeypatch.setenv("YOUTUBE_MADE_FOR_KIDS", "false")
+    with pytest.raises(RuntimeError, match="non-empty .mp4"):
+        upload_video(str(video), _fully_reviewed_metadata())
