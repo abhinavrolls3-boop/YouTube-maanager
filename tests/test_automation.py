@@ -30,6 +30,10 @@ def test_batch_generates_review_report_without_publishing(tmp_path, monkeypatch)
     evidence = report["items"][0]["artifacts"]["evidence_register"]
     assert Path(evidence).is_file()
     assert json.loads(Path(evidence).read_text(encoding="utf-8"))["status"] == "needs_human_review"
+    creative_brief = report["items"][0]["artifacts"]["creative_brief"]
+    assert Path(creative_brief).is_file()
+    manifest = json.loads((tmp_path / "output" / "artifact_manifest.json").read_text(encoding="utf-8"))
+    assert any(entry["path"].endswith("_creative_brief.json") for entry in manifest["artifacts"])
 
 
 def test_batch_respects_custom_output_directory(tmp_path, monkeypatch):
