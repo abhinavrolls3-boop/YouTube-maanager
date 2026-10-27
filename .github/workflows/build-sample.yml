@@ -16,6 +16,8 @@ on:
           - venus-day
           - sharks-older
           - honey
+          - moon-drifting
+          - jupiter-red-spot
 permissions:
   contents: read
 concurrency:
