@@ -1,4 +1,5 @@
 """Run a bounded batch of offline production tasks; designed for scheduled CI."""
+import csv
 import json
 import os
 from pathlib import Path
@@ -98,6 +99,27 @@ def run_batch(days=1, start_date=None, output_dir="output"):
     ready = sum(x["status"] == "ready_for_review" for x in results)
     attention = sum(x["status"] == "needs_attention" for x in results)
     failed = sum(x["status"] == "failed" for x in results)
+    # A compact CSV queue is easier to open in mobile spreadsheet apps than JSON.
+    queue_path = root / "content_queue.csv"
+    queue_fields = [
+        "date", "topic", "source", "status", "video", "thumbnail",
+        "metadata", "subtitles", "creative_brief", "review_checklist",
+        "evidence_register", "source_check", "research_leads", "warnings_or_error",
+    ]
+    with queue_path.open("w", encoding="utf-8-sig", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=queue_fields)
+        writer.writeheader()
+        for item in results:
+            artifacts = item.get("artifacts", {})
+            writer.writerow({
+                "date": item.get("date", ""),
+                "topic": item.get("topic", ""),
+                "source": item.get("source", ""),
+                "status": item.get("status", "failed"),
+                **{key: artifacts.get(key, "") for key in queue_fields[4:13]},
+                "warnings_or_error": "; ".join(item.get("warnings", [])) or item.get("error", ""),
+            })
+
     report = {
         "items": results,
         "attempted": len(results),
@@ -107,6 +129,7 @@ def run_batch(days=1, start_date=None, output_dir="output"):
         "failed": failed,
         "publishing_enabled": False,
         "artifact_manifest": manifest_path,
+        "content_queue_csv": str(queue_path),
         "note": "This batch does not publish videos. Review every claim, source, and output before uploading.",
     }
     report_path = root / "automation_report.json"
@@ -156,6 +179,7 @@ table{border-collapse:collapse;width:100%;margin-top:18px}th,td{text-align:left;
 a{margin-right:8px;white-space:nowrap}small{color:#555}
 </style></head><body><h1>FactVerse production report</h1>
 <p class="notice"><strong>Drafts only — nothing has been uploaded to YouTube.</strong> Review every factual claim, source, asset right, and originality before publishing.</p>
+<p><a href="content_queue.csv">Open/download content queue CSV</a></p>
 <p>Attempted: """ + str(report["attempted"]) + """ · Ready for review: """ + str(ready) + """ · Needs attention: """ + str(attention) + """ · Failed: """ + str(failed) + """</p>
 <table><thead><tr><th>Topic</th><th>Status</th><th>Files</th><th>Warnings / errors</th></tr></thead><tbody>""" + "".join(rows) + """</tbody></table>
 <p><small>Source reachability does not prove factual support. This dashboard is generated locally inside the workflow artifact.</small></p>
