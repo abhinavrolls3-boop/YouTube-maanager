@@ -23,9 +23,15 @@ def test_approval_requires_sources(tmp_path):
     with pytest.raises(ValueError, match="source URLs"):
         approve_metadata(metadata, human_review=True, originality=True)
 
-def test_approval_records_review_timestamp(tmp_path):
+def test_approval_requires_evidence_review(tmp_path):
     metadata = tmp_path / "clip_metadata.json"
     metadata.write_text(json.dumps({"title":"A science fact","source_urls":["https://example.org"]}))
+    with pytest.raises(ValueError, match="evidence register first"):
+        approve_metadata(metadata, human_review=True, originality=True)
+
+def test_approval_records_review_timestamp(tmp_path):
+    metadata = tmp_path / "clip_metadata.json"
+    metadata.write_text(json.dumps({"title":"A science fact","source_urls":["https://example.org"], "evidence_review_status":"human_reviewed_supported"}))
     result = approve_metadata(metadata, human_review=True, originality=True)
     assert result["human_review_status"] == "approved"
     assert result["originality_check_status"] == "passed"
