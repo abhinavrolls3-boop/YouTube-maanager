@@ -113,3 +113,16 @@ Caption extends past the end
     result = validate_package(video, thumb, metadata)
     assert not result["ok"]
     assert any("after video duration" in issue for issue in result["issues"])
+
+
+def test_evidence_review_and_caption_presence_are_explicit_warnings(tmp_path):
+    video = tmp_path / "clip.mp4"
+    make_video(video)
+    thumb = tmp_path / "thumb.png"
+    Image.new("RGB", (720, 1280)).save(thumb)
+    metadata = tmp_path / "metadata.json"
+    make_metadata(metadata)
+    result = validate_package(video, thumb, metadata)
+    assert result["ok"]
+    assert any("Claim-by-claim evidence review" in warning for warning in result["warnings"])
+    assert any("No subtitle_path" in warning for warning in result["warnings"])
