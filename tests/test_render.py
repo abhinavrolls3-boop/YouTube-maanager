@@ -47,3 +47,25 @@ def test_caption_text_is_burned_into_frame():
                               caption_text="Astronauts float in orbit.")
     assert without_caption.size == with_caption.size == (720, 1280)
     assert without_caption.tobytes() != with_caption.tobytes()
+
+
+
+def test_render_caption_timing_uses_word_weighted_chunks(tmp_path, monkeypatch):
+    import factverse_manager.render as render_module
+    seen = []
+    original = render_module.make_frame
+
+    def capture(index, total, title, explanation, caption_text=None):
+        if index in (0, 1, 2, 3, 4):
+            seen.append(caption_text)
+        return original(index, total, title, explanation, caption_text)
+
+    monkeypatch.setattr(render_module, "make_frame", capture)
+    video = tmp_path / "weighted.mp4"
+    thumb = tmp_path / "weighted.png"
+    render_module.render_video(
+        "Title", "Explanation", str(video), str(thumb),
+        seconds=5, fps=1, narration="one two three four five six seven eight nine",
+    )
+    assert seen[0] == "one two three four five six seven eight"
+    assert seen[-1] == "nine"
