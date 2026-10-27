@@ -56,7 +56,7 @@ def test_render_caption_timing_uses_word_weighted_chunks(tmp_path, monkeypatch):
     original = render_module.make_frame
 
     def capture(index, total, title, explanation, caption_text=None):
-        if index in (0, 1, 2, 3, 4):
+        if index in (0, 1, 2, 3, 4, 9):
             seen.append(caption_text)
         return original(index, total, title, explanation, caption_text)
 
@@ -65,7 +65,7 @@ def test_render_caption_timing_uses_word_weighted_chunks(tmp_path, monkeypatch):
     thumb = tmp_path / "weighted.png"
     render_module.render_video(
         "Title", "Explanation", str(video), str(thumb),
-        seconds=5, fps=1, narration="one two three four five six seven eight nine",
+        seconds=10, fps=1, narration="one two three four five six seven eight nine",
     )
     assert seen[0] == "one two three four five six seven eight"
     assert seen[-1] == "nine"
