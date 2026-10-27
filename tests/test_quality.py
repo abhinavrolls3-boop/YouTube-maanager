@@ -96,3 +96,20 @@ A short caption
     result = validate_package(video, thumb, metadata)
     assert result["ok"], result["issues"]
     assert result["subtitle_report"]["ok"]
+
+
+def test_subtitle_cues_cannot_extend_past_video_duration(tmp_path):
+    video = tmp_path / "clip.mp4"
+    make_video(video)
+    thumb = tmp_path / "thumb.png"
+    Image.new("RGB", (720, 1280)).save(thumb)
+    subtitle = tmp_path / "clip.srt"
+    subtitle.write_text("""1
+00:00:04,000 --> 00:00:06,000
+Caption extends past the end
+""", encoding="utf-8")
+    metadata = tmp_path / "metadata.json"
+    make_metadata(metadata, subtitle_path="clip.srt")
+    result = validate_package(video, thumb, metadata)
+    assert not result["ok"]
+    assert any("after video duration" in issue for issue in result["issues"])
