@@ -27,8 +27,8 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 - `PYTHONPATH=src python -m factverse_manager.cli review output/astronauts-float_metadata.json`
 - `PYTHONPATH=src python -m factverse_manager.cli evidence output/astronauts-float_metadata.json`
 - Edit the generated `output/astronauts-float_evidence.json`: add a supporting `evidence_url`, quote/location, and set each reviewed claim assessment to `supported` only if the source actually supports it.
-- After checking every claim and source: `PYTHONPATH=src python -m factverse_manager.cli evidence-approve output/astronauts-float_evidence.json --confirm-each-claim --confirm-sources`
-- After personally reviewing the actual video and its sources: `PYTHONPATH=src python -m factverse_manager.cli approve output/astronauts-float_metadata.json --confirm-human-review --confirm-originality`
+- After checking every claim and source, fill in each claim's evidence URL, supporting quote/location, and set its assessment to `supported`; then run `PYTHONPATH=src python -m factverse_manager.cli evidence-approve output/astronauts-float_evidence.json --confirm-each-claim --confirm-sources`. This also records the evidence-review status in the linked metadata.
+- Only after evidence approval and a separate originality/asset-rights review: `PYTHONPATH=src python -m factverse_manager.cli approve output/astronauts-float_metadata.json --confirm-human-review --confirm-originality`. The uploader blocks packages without the evidence-review status.
 - `PYTHONPATH=src python -m factverse_manager.cli draft "ocean science"`
 
 ## Daily automation
