@@ -47,7 +47,20 @@ def approve_evidence_register(register_path, confirm_each_claim=False, confirm_s
             raise ValueError(f"{claim.get('claim_id', 'Unknown claim')} needs an evidence URL and quote/location.")
     if not data.get("source_urls"):
         raise ValueError("Add and review source URLs before approval.")
+    reviewed_at = datetime.now(timezone.utc).isoformat()
     data["status"] = "human_reviewed_supported"
-    data["reviewed_at_utc"] = datetime.now(timezone.utc).isoformat()
+    data["reviewed_at_utc"] = reviewed_at
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+    # Link the evidence approval to its metadata so the upload gate can require it.
+    metadata_path = Path(data.get("metadata_path", ""))
+    if not metadata_path.is_absolute():
+        metadata_path = path.parent / metadata_path
+    if not metadata_path.is_file():
+        raise ValueError(f"Linked metadata file does not exist: {metadata_path}")
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    if not isinstance(metadata, dict):
+        raise ValueError("Linked metadata must be a JSON object.")
+    metadata["evidence_review_status"] = "human_reviewed_supported"
+    metadata["evidence_reviewed_at_utc"] = reviewed_at
+    metadata_path.write_text(json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8")
     return data
