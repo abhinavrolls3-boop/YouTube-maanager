@@ -20,8 +20,14 @@ def test_evidence_command_creates_register(tmp_path, monkeypatch, capsys):
 
 
 def test_evidence_approve_command_dispatches_gate(tmp_path, monkeypatch, capsys):
+    metadata = tmp_path / "clip_metadata.json"
+    metadata.write_text(json.dumps({
+        "title": "A claim long enough to review",
+        "source_urls": ["https://example.org/source"],
+    }), encoding="utf-8")
     register = tmp_path / "evidence.json"
     register.write_text(json.dumps({
+        "metadata_path": str(metadata),
         "status": "needs_human_review",
         "source_urls": ["https://example.org/source"],
         "claims": [{
@@ -41,6 +47,8 @@ def test_evidence_approve_command_dispatches_gate(tmp_path, monkeypatch, capsys)
     assert result["status"] == "human_reviewed_supported"
     saved = json.loads(register.read_text(encoding="utf-8"))
     assert saved["status"] == "human_reviewed_supported"
+    saved_metadata = json.loads(metadata.read_text(encoding="utf-8"))
+    assert saved_metadata["evidence_review_status"] == "human_reviewed_supported"
 
 def test_no_argument_cli_keeps_default_sample_render(monkeypatch, capsys):
     import factverse_manager.cli as cli
