@@ -37,6 +37,16 @@ def test_upload_requires_originality_approval_before_api_call(tmp_path, monkeypa
     with pytest.raises(RuntimeError, match="originality_check_status"):
         upload_video(str(video), metadata)
 
+def test_upload_requires_evidence_approval_before_api_call(tmp_path, monkeypatch):
+    video = tmp_path / "video.mp4"
+    video.write_bytes(b"video")
+    monkeypatch.setenv("ENABLE_UPLOAD", "true")
+    monkeypatch.setenv("UPLOAD_PRIVACY", "unlisted")
+    metadata = {"title":"Fact", "description":"desc", "source_urls":["https://example.org"],
+                "human_review_status":"approved", "originality_check_status":"passed"}
+    with pytest.raises(RuntimeError, match="per-claim evidence review"):
+        upload_video(str(video), metadata)
+
 def test_upload_daily_cap_blocks_before_api_call(tmp_path, monkeypatch):
     import json
     from datetime import datetime, timezone
