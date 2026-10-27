@@ -15,7 +15,7 @@ def test_duration_estimate_scales_with_narration_and_is_bounded():
 def test_render_fact_uses_same_duration_for_video_and_subtitles(tmp_path, monkeypatch):
     observed = {}
 
-    def fake_render_video(title, explanation, video_path, thumbnail_path, seconds=18, fps=12):
+    def fake_render_video(title, explanation, video_path, thumbnail_path, seconds=18, fps=12, narration=None):
         observed["video_seconds"] = seconds
         Path(video_path).write_bytes(b"video-placeholder")
         Path(thumbnail_path).write_bytes(b"thumbnail-placeholder")
