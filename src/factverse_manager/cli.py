@@ -40,7 +40,7 @@ def render_fact(fact, safe_slug):
             narration_status = "unavailable: " + str(exc)
     subtitle_path = write_srt(fact.narration, str(output_dir / f"{safe_slug}.srt"), duration=18)
     metadata = make_metadata(fact)
-    metadata["subtitle_path"] = subtitle_path
+    metadata["subtitle_path"] = Path(subtitle_path).name
     metadata["narration"] = fact.narration
     metadata["topic_slug"] = safe_slug
     metadata["human_fact_check_required"] = True
