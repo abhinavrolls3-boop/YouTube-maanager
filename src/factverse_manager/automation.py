@@ -137,8 +137,14 @@ def run_batch(days=1, start_date=None, output_dir="output"):
                 links.append(f'<a href="{rel}">{label}</a>')
         note = "; ".join(item.get("warnings", [])) or item.get("error", "")
         note = note.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        thumbnail_rel = _relative_link(artifacts.get("thumbnail"))
+        preview = (
+            '<div><img class="preview" loading="lazy" src="' + thumbnail_rel +
+            '" alt="Thumbnail preview for ' + str(item.get("topic", "topic")) + '"></div>'
+            if thumbnail_rel else ""
+        )
         rows.append("<tr><td>" + str(item.get("topic", "unknown")) + "</td><td>" +
-                    str(item.get("status", "unknown")) + "</td><td>" + " · ".join(links) +
+                    str(item.get("status", "unknown")) + "</td><td>" + preview + " · ".join(links) +
                     "</td><td>" + note + "</td></tr>")
     dashboard = """<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -146,6 +152,7 @@ def run_batch(days=1, start_date=None, output_dir="output"):
 body{font:16px system-ui,sans-serif;max-width:1100px;margin:24px auto;padding:0 14px;color:#172033}
 .notice{padding:12px;border:1px solid #d99;background:#fff8e8;border-radius:10px}
 table{border-collapse:collapse;width:100%;margin-top:18px}th,td{text-align:left;padding:10px;border-bottom:1px solid #ddd;vertical-align:top}
+.preview{display:block;width:140px;max-width:100%;height:auto;border-radius:8px;margin:4px 0 8px}
 a{margin-right:8px;white-space:nowrap}small{color:#555}
 </style></head><body><h1>FactVerse production report</h1>
 <p class="notice"><strong>Drafts only — nothing has been uploaded to YouTube.</strong> Review every factual claim, source, asset right, and originality before publishing.</p>
