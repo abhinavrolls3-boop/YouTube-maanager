@@ -105,7 +105,12 @@ def validate_package(video_path, thumbnail_path, metadata_path):
         try:
             from PIL import Image
             with Image.open(thumbnail) as image:
+                width, height = image.size
                 image.verify()
+            if width < 640 or height < 360:
+                issues.append(f"Thumbnail resolution is too small: {width}x{height}; use at least 640x360.")
+            if height <= 0 or abs((width / height) - (16 / 9)) > 0.03:
+                issues.append(f"Thumbnail should use a 16:9 landscape aspect ratio, got {width}x{height}.")
         except Exception:
             issues.append("Thumbnail is not a readable image.")
     return {

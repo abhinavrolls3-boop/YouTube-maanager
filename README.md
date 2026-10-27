@@ -7,7 +7,7 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 - Vertical MP4 videos with topic-specific 2D scenes for space, octopuses, Venus, sharks, and honey, plus two additional space topics; separate 16:9 landscape thumbnails designed for YouTube, metadata, timed SRT subtitles, and narration captions burned into the video frames. Video length is estimated from narration and shared with the SRT timing. Each package also includes a standalone JSON Shorts creative brief (hook, storyboard beats, editing notes and CTA) linked from the phone dashboard.
 - Optional free local English TTS in the daily workflow using espeak-ng; failure is recorded and may leave a silent video.
 - One-week calendar, bounded batch production, package preflight checks, JSON review report, and SHA-256 artifact integrity manifest.
-- Package preflight now decodes the generated MP4, checks that it is readable and vertical, and validates thumbnail readability; corrupt/non-video files are rejected.
+- Package preflight now decodes the generated MP4, checks that it is readable and vertical, and requires a readable 16:9 landscape thumbnail at least 640×360; corrupt/non-video files are rejected.
 - If metadata points to an SRT file, package preflight checks cue numbering, timestamp syntax, overlaps, and missing captions; it does not claim captions are synchronized to spoken audio.
 - Missing source URLs are flagged. Scheduled batches check source URL reachability and include a per-topic report; an optional free Wikimedia search adds research leads for a human to inspect. Neither reachability nor search results verify factual support.
 - Each batch now creates a per-claim evidence register; every claim starts unverified and needs human evidence review.

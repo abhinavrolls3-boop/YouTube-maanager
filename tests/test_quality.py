@@ -20,7 +20,7 @@ def test_valid_package_checks_real_video_and_thumbnail(tmp_path):
     video = tmp_path / "clip.mp4"
     make_video(video)
     thumb = tmp_path / "thumb.png"
-    Image.new("RGB", (720, 1280)).save(thumb)
+    Image.new("RGB", (1280, 720)).save(thumb)
     metadata = tmp_path / "metadata.json"
     make_metadata(metadata)
     result = validate_package(video, thumb, metadata)
@@ -85,7 +85,7 @@ def test_relative_subtitle_path_resolves_from_metadata_directory(tmp_path):
     video = tmp_path / "clip.mp4"
     make_video(video)
     thumb = tmp_path / "thumb.png"
-    Image.new("RGB", (720, 1280)).save(thumb)
+    Image.new("RGB", (1280, 720)).save(thumb)
     subtitle = tmp_path / "clip.srt"
     subtitle.write_text("""1
 00:00:00,000 --> 00:00:05,000
@@ -102,7 +102,7 @@ def test_subtitle_cues_cannot_extend_past_video_duration(tmp_path):
     video = tmp_path / "clip.mp4"
     make_video(video)
     thumb = tmp_path / "thumb.png"
-    Image.new("RGB", (720, 1280)).save(thumb)
+    Image.new("RGB", (1280, 720)).save(thumb)
     subtitle = tmp_path / "clip.srt"
     subtitle.write_text("""1
 00:00:04,000 --> 00:00:06,000
@@ -119,10 +119,34 @@ def test_evidence_review_and_caption_presence_are_explicit_warnings(tmp_path):
     video = tmp_path / "clip.mp4"
     make_video(video)
     thumb = tmp_path / "thumb.png"
-    Image.new("RGB", (720, 1280)).save(thumb)
+    Image.new("RGB", (1280, 720)).save(thumb)
     metadata = tmp_path / "metadata.json"
     make_metadata(metadata)
     result = validate_package(video, thumb, metadata)
     assert result["ok"]
     assert any("Claim-by-claim evidence review" in warning for warning in result["warnings"])
     assert any("No subtitle_path" in warning for warning in result["warnings"])
+
+
+def test_vertical_thumbnail_is_rejected(tmp_path):
+    video = tmp_path / "clip.mp4"
+    make_video(video)
+    thumb = tmp_path / "vertical.png"
+    Image.new("RGB", (720, 1280)).save(thumb)
+    metadata = tmp_path / "metadata.json"
+    make_metadata(metadata)
+    result = validate_package(video, thumb, metadata)
+    assert not result["ok"]
+    assert any("16:9 landscape" in issue for issue in result["issues"])
+
+
+def test_low_resolution_landscape_thumbnail_is_rejected(tmp_path):
+    video = tmp_path / "clip.mp4"
+    make_video(video)
+    thumb = tmp_path / "tiny.png"
+    Image.new("RGB", (320, 180)).save(thumb)
+    metadata = tmp_path / "metadata.json"
+    make_metadata(metadata)
+    result = validate_package(video, thumb, metadata)
+    assert not result["ok"]
+    assert any("resolution is too small" in issue for issue in result["issues"])
