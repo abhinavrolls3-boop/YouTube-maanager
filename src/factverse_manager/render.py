@@ -166,10 +166,22 @@ def render_video(title, explanation, output="output/factverse_sample.mp4", thumb
     total = seconds * fps
     words = str(narration or "").split()
     caption_chunks = [words[i:i + 8] for i in range(0, len(words), 8)]
+    # Keep the visual caption changes on the same word-weighted timing model
+    # as the SRT file; real audio alignment still requires a forced aligner.
+    total_words = max(1, len(words))
+    cumulative_word_limits = []
+    cumulative = 0
+    for chunk in caption_chunks:
+        cumulative += len(chunk)
+        cumulative_word_limits.append(cumulative / total_words)
     def frame_for(index):
         caption = None
         if caption_chunks:
-            chunk_index = min(len(caption_chunks) - 1, int(index / max(total, 1) * len(caption_chunks)))
+            progress = index / max(total, 1)
+            chunk_index = next(
+                (i for i, limit in enumerate(cumulative_word_limits) if progress < limit),
+                len(caption_chunks) - 1,
+            )
             caption = " ".join(caption_chunks[chunk_index])
         return make_frame(index, total, title, explanation, caption_text=caption)
     frame_for(0).save(thumb)
