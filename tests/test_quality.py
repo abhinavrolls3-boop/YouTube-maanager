@@ -59,7 +59,7 @@ def test_review_needed_is_warning_not_fake_approval(tmp_path):
     video = tmp_path / "clip.mp4"
     make_video(video)
     thumb = tmp_path / "thumb.png"
-    Image.new("RGB", (10, 10)).save(thumb)
+    Image.new("RGB", (1280, 720)).save(thumb)
     metadata = tmp_path / "metadata.json"
     make_metadata(metadata)
     result = validate_package(video, thumb, metadata)
