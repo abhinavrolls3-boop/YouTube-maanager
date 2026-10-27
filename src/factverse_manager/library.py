@@ -38,6 +38,18 @@ TOPICS = (
         "Honey's low water availability, acidity, and other properties make it difficult for many microbes to grow. It can still become contaminated or change, so storage and food safety matter.",
         ("food", "science", "honey", "facts", "education"),
         ("https://pmp.ars.usda.gov/WaterActivity.aspx",))),
+    Topic("moon-drifting", Fact(
+        "Is the Moon slowly moving away from Earth?",
+        "Yes. The Moon is gradually moving farther from Earth by about 3.8 centimeters each year.",
+        "Measurements using laser reflections from equipment left on the Moon show that its average distance from Earth is increasing. Tides transfer a small amount of energy from Earth's rotation to the Moon's orbit. The change is tiny each year, but it adds up over long periods.",
+        ("moon", "space", "astronomy", "science", "facts"),
+        ("https://science.nasa.gov/moon/tidal-locking/", "https://www.jpl.nasa.gov/news/the-apollo-experiment-that-keeps-on-giving/"))),
+    Topic("jupiter-red-spot", Fact(
+        "What is Jupiter's Great Red Spot?",
+        "Jupiter's Great Red Spot is a huge, long-lived storm in the planet's atmosphere.",
+        "Astronomers have observed this enormous storm for centuries. NASA describes it as a giant rotating storm system, larger than Earth. Its appearance and size can change, so avoid treating older measurements as a permanent exact size.",
+        ("jupiter", "space", "astronomy", "science", "facts"),
+        ("https://science.nasa.gov/asset/hubble/the-great-red-spot-an-ancient-storm-in-jupiters-atmosphere/",))),
 )
 
 def all_topics():
