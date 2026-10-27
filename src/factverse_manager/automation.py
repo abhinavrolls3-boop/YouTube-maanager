@@ -95,4 +95,46 @@ def run_batch(days=1, start_date=None, output_dir="output"):
     }
     report_path = root / "automation_report.json"
     report_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+
+    # A small, self-contained dashboard makes the artifact easier to inspect on a phone.
+    def _relative_link(value):
+        if not value:
+            return ""
+        target = Path(value)
+        try:
+            rel = target.resolve().relative_to(root)
+        except ValueError:
+            return ""
+        return rel.as_posix()
+
+    rows = []
+    for item in results:
+        artifacts = item.get("artifacts", {})
+        links = []
+        for key, label in (("video", "Video"), ("thumbnail", "Thumbnail"),
+                           ("metadata", "Metadata"), ("subtitles", "Captions"),
+                           ("source_check", "Source check"), ("evidence_register", "Evidence review"),
+                           ("review_checklist", "Review checklist")):
+            rel = _relative_link(artifacts.get(key))
+            if rel:
+                links.append(f'<a href="{rel}">{label}</a>')
+        note = "; ".join(item.get("warnings", [])) or item.get("error", "")
+        note = note.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        rows.append("<tr><td>" + str(item.get("topic", "unknown")) + "</td><td>" +
+                    str(item.get("status", "unknown")) + "</td><td>" + " · ".join(links) +
+                    "</td><td>" + note + "</td></tr>")
+    dashboard = """<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FactVerse production report</title><style>
+body{font:16px system-ui,sans-serif;max-width:1100px;margin:24px auto;padding:0 14px;color:#172033}
+.notice{padding:12px;border:1px solid #d99;background:#fff8e8;border-radius:10px}
+table{border-collapse:collapse;width:100%;margin-top:18px}th,td{text-align:left;padding:10px;border-bottom:1px solid #ddd;vertical-align:top}
+a{margin-right:8px;white-space:nowrap}small{color:#555}
+</style></head><body><h1>FactVerse production report</h1>
+<p class="notice"><strong>Drafts only — nothing has been uploaded to YouTube.</strong> Review every factual claim, source, asset right, and originality before publishing.</p>
+<p>Attempted: """ + str(report["attempted"]) + """ · Ready for review: """ + str(ready) + """ · Needs attention: """ + str(attention) + """ · Failed: """ + str(failed) + """</p>
+<table><thead><tr><th>Topic</th><th>Status</th><th>Files</th><th>Warnings / errors</th></tr></thead><tbody>""" + "".join(rows) + """</tbody></table>
+<p><small>Source reachability does not prove factual support. This dashboard is generated locally inside the workflow artifact.</small></p>
+</body></html>"""
+    (root / "index.html").write_text(dashboard, encoding="utf-8")
     return report, str(report_path)
