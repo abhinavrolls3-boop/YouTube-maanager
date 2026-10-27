@@ -53,7 +53,7 @@ def approve_evidence_register(register_path, confirm_each_claim=False, confirm_s
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
     # Link the evidence approval to its metadata so the upload gate can require it.
     metadata_path = Path(data.get("metadata_path", ""))
-    if not metadata_path.is_absolute():
+    if not metadata_path.is_absolute() and not metadata_path.is_file():
         metadata_path = path.parent / metadata_path
     if not metadata_path.is_file():
         raise ValueError(f"Linked metadata file does not exist: {metadata_path}")
