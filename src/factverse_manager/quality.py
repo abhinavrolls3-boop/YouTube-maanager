@@ -75,7 +75,11 @@ def validate_package(video_path, thumbnail_path, metadata_path):
         warnings.append("Human factual/source review is still required.")
     if data.get("originality_check_status") != "passed":
         warnings.append("Originality and asset-rights review is still required.")
+    if data.get("evidence_review_status") != "human_reviewed_supported":
+        warnings.append("Claim-by-claim evidence review is still required before upload.")
     subtitle_path = data.get("subtitle_path")
+    if not subtitle_path:
+        warnings.append("No subtitle_path is recorded in metadata; confirm captions are available and readable.")
     subtitle_report = None
     video_probe = None
     if video.is_file() and video.stat().st_size:
