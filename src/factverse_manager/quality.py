@@ -79,7 +79,10 @@ def validate_package(video_path, thumbnail_path, metadata_path):
     subtitle_report = None
     if subtitle_path:
         try:
-            subtitle_report = validate_srt(subtitle_path)
+            subtitle_file = Path(subtitle_path)
+            if not subtitle_file.is_absolute():
+                subtitle_file = metadata.parent / subtitle_file
+            subtitle_report = validate_srt(subtitle_file)
             if not subtitle_report["ok"]:
                 issues.extend("Subtitle check: " + issue for issue in subtitle_report["issues"])
         except (OSError, UnicodeError, ValueError) as exc:
