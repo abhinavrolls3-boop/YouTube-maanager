@@ -2,11 +2,15 @@ from factverse_manager.library import all_topics, get_topic
 
 def test_topic_library_has_multiple_valid_facts():
     topics = all_topics()
-    assert len(topics) >= 5
+    assert len(topics) >= 7
     assert len({topic.slug for topic in topics}) == len(topics)
 
 def test_topic_lookup_returns_fact():
     assert get_topic("octopus-hearts").fact.title.startswith("How many hearts")
+
+def test_new_space_topics_have_sources():
+    assert get_topic("moon-drifting").fact.sources
+    assert get_topic("jupiter-red-spot").fact.sources
 
 def test_unknown_topic_lists_available_topics():
     try:
