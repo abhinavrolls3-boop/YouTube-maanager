@@ -12,6 +12,7 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 - Missing source URLs are flagged. Scheduled batches check source URL reachability and include a per-topic report; an optional free Wikimedia search adds research leads for a human to inspect. Neither reachability nor search results verify factual support.
 - Each batch now creates a per-claim evidence register; every claim starts unverified and needs human evidence review.
 - Offline YouTube Studio CSV analytics summaries, including average view-duration parsing from common M:SS and H:MM:SS exports.
+- Evidence-aware growth report from Studio CSVs: per-view interaction/subscriber rates and cautious, testable title/thumbnail/retention experiments; no guaranteed outcomes.
 - Optional OmniRoute model drafts, disabled unless configured.
 - Scheduled GitHub Actions workflow, artifacts, a phone-friendly run summary, and a self-contained HTML dashboard (`output/index.html`) linking each topic's video, thumbnail, captions, metadata, source report, and review files; optional webhook notifications.
 - Manual YouTube API upload is protected by source, explicit human-review, originality-review, duplicate-file and daily-limit gates; public uploads are rejected.
@@ -24,6 +25,7 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 - `PYTHONPATH=src python -m factverse_manager.cli sources output/octopus-hearts_metadata.json`
 - `PYTHONPATH=src python -m factverse_manager.cli verify-manifest output/artifact_manifest.json`
 - `PYTHONPATH=src python -m factverse_manager.cli analytics path/to/youtube-studio-export.csv`
+- `PYTHONPATH=src python -m factverse_manager.cli growth path/to/youtube-studio-export.csv` (growth experiments; requires a Studio CSV)
 - `PYTHONPATH=src python -m factverse_manager.cli review output/astronauts-float_metadata.json`
 - `PYTHONPATH=src python -m factverse_manager.cli evidence output/astronauts-float_metadata.json`
 - Edit the generated `output/astronauts-float_evidence.json`: add a supporting `evidence_url`, quote/location, and set each reviewed claim assessment to `supported` only if the source actually supports it.
