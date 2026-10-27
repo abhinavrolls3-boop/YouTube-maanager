@@ -45,7 +45,7 @@ def render_fact(fact, safe_slug):
     duration_seconds = estimate_video_duration(fact.narration)
     video, thumbnail = render_video(
         fact.title, fact.explanation, video_path, thumbnail_path,
-        seconds=duration_seconds,
+        seconds=duration_seconds, narration=fact.narration,
     )
     narration_status = "disabled"
     if __import__("os").getenv("ENABLE_NARRATION", "false").lower() == "true":
