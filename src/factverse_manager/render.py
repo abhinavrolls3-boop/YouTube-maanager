@@ -157,6 +157,44 @@ def make_frame(index, total, title, explanation, caption_text=None):
     return im
 
 
+def make_thumbnail(title, explanation):
+    """Create a conventional 16:9 thumbnail distinct from the vertical video."""
+    width, height = 1280, 720
+    image = Image.new("RGB", (width, height), (8, 18, 42))
+    draw = ImageDraw.Draw(image)
+    # Quiet decorative geometry keeps the title readable on small screens.
+    draw.ellipse((820, -140, 1390, 430), outline=(28, 70, 118), width=5)
+    draw.ellipse((880, -80, 1330, 370), outline=(28, 70, 118), width=3)
+    draw.text((52, 44), "FACTVERSE  •  QUICK FACT", font=_font(28), fill=(105, 220, 255))
+
+    title_font = _font(58)
+    title_lines = _wrap(draw, str(title), title_font, 650)[:3]
+    y = 150
+    for line in title_lines:
+        draw.text((52, y), line, font=title_font, fill=(255, 255, 255), stroke_width=1, stroke_fill=(8, 18, 42))
+        y += 76
+
+    body_font = _font(27)
+    body_lines = _wrap(draw, str(explanation), body_font, 640)[:3]
+    y = max(405, y + 18)
+    for line in body_lines:
+        if y > 630:
+            break
+        draw.text((56, y), line, font=body_font, fill=(195, 216, 240))
+        y += 39
+
+    scene_canvas = Image.new("RGB", (W, H), (8, 18, 42))
+    scene_draw = ImageDraw.Draw(scene_canvas)
+    _draw_scene(scene_draw, scene_for_topic(str(title) + " " + str(explanation)), 0.6)
+    # Crop the illustration area (without the vertical video's text panels).
+    scene = scene_canvas.crop((70, 35, 650, 565)).resize((500, 455), Image.Resampling.LANCZOS)
+    draw.rounded_rectangle((730, 112, 1230, 567), radius=34,
+                           fill=(15, 35, 68), outline=(42, 93, 145), width=4)
+    image.paste(scene, (730, 112))
+    draw.rounded_rectangle((52, 660, 1228, 666), radius=3, fill=(42, 93, 145))
+    return image
+
+
 def render_video(title, explanation, output="output/factverse_sample.mp4", thumbnail="output/thumbnail.png", seconds=18, fps=12, narration=None):
     if seconds < 5 or seconds > 60:
         raise ValueError("Duration must be between 5 and 60 seconds.")
@@ -184,7 +222,7 @@ def render_video(title, explanation, output="output/factverse_sample.mp4", thumb
             )
             caption = " ".join(caption_chunks[chunk_index])
         return make_frame(index, total, title, explanation, caption_text=caption)
-    frame_for(0).save(thumb)
+    make_thumbnail(title, explanation).save(thumb)
     writer = imageio.get_writer(str(out), fps=fps, codec="libx264", macro_block_size=16, ffmpeg_log_level="error", quality=7)
     try:
         for i in range(total):

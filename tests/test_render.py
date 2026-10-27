@@ -17,7 +17,7 @@ def test_render_creates_nonempty_mp4_and_readable_thumbnail(tmp_path):
     assert video.is_file() and video.stat().st_size > 1000
     assert thumbnail.is_file() and thumbnail.stat().st_size > 100
     with Image.open(thumbnail) as image:
-        assert image.size == (720,1280)
+        assert image.size == (1280,720)
 
 
 def test_scene_selection_matches_curated_fact_topics():
@@ -69,3 +69,12 @@ def test_render_caption_timing_uses_word_weighted_chunks(tmp_path, monkeypatch):
     )
     assert seen[0] == "one two three four five six seven eight"
     assert seen[-1] == "nine"
+
+
+def test_thumbnail_is_landscape_and_topic_specific():
+    from factverse_manager.render import make_thumbnail
+
+    octopus = make_thumbnail("How many hearts does an octopus have?", "An octopus has three hearts.")
+    venus = make_thumbnail("Is a day on Venus longer than its year?", "Venus rotates very slowly.")
+    assert octopus.size == venus.size == (1280, 720)
+    assert octopus.tobytes() != venus.tobytes()
