@@ -41,3 +41,12 @@ def test_evidence_approve_command_dispatches_gate(tmp_path, monkeypatch, capsys)
     assert result["status"] == "human_reviewed_supported"
     saved = json.loads(register.read_text(encoding="utf-8"))
     assert saved["status"] == "human_reviewed_supported"
+
+def test_no_argument_cli_keeps_default_sample_render(monkeypatch, capsys):
+    import factverse_manager.cli as cli
+
+    called = []
+    monkeypatch.setattr(sys, "argv", ["factverse-manager"])
+    monkeypatch.setattr(cli, "render_topic", lambda: called.append(True))
+    main()
+    assert called == [True]
