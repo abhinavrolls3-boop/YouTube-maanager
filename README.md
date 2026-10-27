@@ -13,7 +13,7 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 - Each batch now creates a per-claim evidence register; every claim starts unverified and needs human evidence review.
 - Offline YouTube Studio CSV analytics summaries.
 - Optional OmniRoute model drafts, disabled unless configured.
-- Scheduled GitHub Actions workflow, artifacts, optional webhook notifications.
+- Scheduled GitHub Actions workflow, artifacts, a phone-friendly run summary with per-topic status, and optional webhook notifications.
 - Manual YouTube API upload is protected by source, explicit human-review, originality-review, duplicate-file and daily-limit gates; public uploads are rejected.
 
 ## Commands
@@ -34,7 +34,7 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 ## Daily automation
 Scheduled for 09:00 India time when GitHub provides a runner; this is not guaranteed always-on compute. AI drafts need secret `OMNIROUTE_API_KEY`, variables `OMNIROUTE_BASE_URL` and `OMNIROUTE_MODEL`, plus `ENABLE_AI_DRAFTS=true`. Provider costs/quotas may apply. The system does not yet conduct live source research.
 
-The scheduled workflow does not upload videos. Manual upload requires YouTube OAuth and explicit per-video approval metadata. The uploader permits only private/unlisted visibility and defaults to one upload per UTC day. Approval flags are meaningful only after you actually review the video and its sources; they are not a way to bypass review.
+The scheduled workflow runs in GitHub's cloud; you do not need to keep ChatGPT or the phone app open. After each run, the workflow summary reports ready/failed counts and points to the temporary artifact. To receive a notification without checking GitHub, configure `NOTIFY_WEBHOOK_URL`. The scheduled workflow does not upload videos. Manual upload requires YouTube OAuth and explicit per-video approval metadata. The uploader permits only private/unlisted visibility and defaults to one upload per UTC day. Approval flags are meaningful only after you actually review the video and its sources; they are not a way to bypass review.
 
 ## Not finished
 - Live source discovery and evidence checking, robust character animation, licensed music, advanced motion control, permanent database, guaranteed 24/7 runtime, full channel analytics, or guaranteed earnings.
