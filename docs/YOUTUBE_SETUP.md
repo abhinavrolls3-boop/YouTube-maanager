@@ -13,3 +13,5 @@ Uploads are optional and disabled by default. Use a channel you control.
 9. Only then use the upload CLI with valid OAuth credentials. The uploader allows only private or unlisted visibility, requires source URLs, evidence approval, both review flags, blocks matching video hashes in the local history, and defaults to one upload per UTC day.
 
 The upload history is local/best-effort and can be lost, so it is not a permanent duplicate-proof database. YouTube API quota, OAuth verification restrictions, channel permissions, monetization policies, and community guidelines still apply. These checks cannot guarantee that YouTube will never restrict a video or channel.
+
+10. Set `YOUTUBE_MADE_FOR_KIDS=true` or `YOUTUBE_MADE_FOR_KIDS=false` in the upload environment only after choosing the correct audience setting for the specific content/channel. Upload is blocked if this declaration is missing or invalid. The uploader also rejects empty/non-MP4 files, invalid source URLs, empty descriptions, and titles outside 1–100 characters.
