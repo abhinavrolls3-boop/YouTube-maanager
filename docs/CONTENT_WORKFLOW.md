@@ -19,4 +19,4 @@ PYTHONPATH=src python -m factverse_manager.cli render octopus-hearts
 - Use an unlisted upload first after OAuth is configured.
 - Keep publishing manual until repeated runs and duplicate prevention have been tested.
 
-The offline renderer currently creates silent motion-graphics video. It does not yet generate narration, licensed music, advanced character animation, or motion-control footage. No model or service can be assumed to have a permanent free quota.
+The renderer creates simple animated motion graphics. The scheduled workflow attempts basic local English narration with espeak-ng; narration can fail and leave a silent video, so check the recorded narration status and listen to the full output. It does not provide licensed music, advanced character animation, or motion-control footage. No model or service can be assumed to have a permanent free quota.
