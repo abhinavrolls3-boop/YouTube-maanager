@@ -36,6 +36,9 @@ def test_approval_requires_explicit_confirmation_and_supported_evidence(tmp_path
     result = approve_evidence_register(path, True, True)
     assert result["status"] == "human_reviewed_supported"
     assert result["reviewed_at_utc"]
+    updated_metadata = json.loads(metadata.read_text(encoding="utf-8"))
+    assert updated_metadata["evidence_review_status"] == "human_reviewed_supported"
+    assert updated_metadata["evidence_reviewed_at_utc"]
 
 def test_approval_rejects_non_http_evidence_urls(tmp_path):
     metadata = tmp_path / "metadata.json"
