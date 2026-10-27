@@ -8,6 +8,7 @@ from .model_gateway import draft_fact
 from .manifest import create_manifest
 from .review import create_review_checklist
 from .evidence import create_evidence_register
+from .source_check import check_sources
 
 
 def run_batch(days=1, start_date=None, output_dir="output"):
@@ -36,11 +37,21 @@ def run_batch(days=1, start_date=None, output_dir="output"):
                     result = render_topic(slug)
                 quality = validate_package(result["video"], result["thumbnail"], result["metadata"])
                 metadata = json.loads(Path(result["metadata"]).read_text(encoding="utf-8"))
+                source_report_path = None
+                if os.getenv("ENABLE_SOURCE_CHECKS", "false").lower() == "true":
+                    source_report = check_sources(metadata.get("source_urls", []), timeout=4)
+                    source_report_path = str(root / (slug + "_source_check.json"))
+                    Path(source_report_path).write_text(json.dumps(source_report, indent=2, ensure_ascii=False), encoding="utf-8")
+                    result["source_check"] = source_report_path
+                    if source_report["total"] and source_report["reachable"] != source_report["total"]:
+                        warnings.append("One or more source URLs could not be reached; inspect the source-check report.")
                 if os.getenv("ENABLE_NARRATION", "false").lower() == "true" and metadata.get("narration_status", "").startswith("unavailable"):
                     warnings.append("Voice narration could not be generated; output may be silent.")
+                status = "ready_for_review" if quality["ok"] else "needs_attention"
+                if source_report_path and source_report["total"] and source_report["reachable"] != source_report["total"]:
+                    status = "needs_attention"
                 results.append({"date": item["date"], "topic": slug, "source": source,
-                                "status": "ready_for_review" if quality["ok"] else "needs_attention",
-                                "warnings": warnings + quality.get("warnings", []),
+                                "status": status, "warnings": warnings + quality.get("warnings", []),
                                 "quality": quality, "artifacts": result})
             except Exception as exc:
                 results.append({"date": item["date"], "topic": slug, "status": "failed",
@@ -63,7 +74,7 @@ def run_batch(days=1, start_date=None, output_dir="output"):
             except Exception as exc:
                 item.setdefault("warnings", []).append("Could not create review/evidence checklist: " + str(exc))
                 item["status"] = "needs_attention"
-        for key in ("video", "thumbnail", "metadata", "subtitles", "review_checklist", "evidence_register"):
+        for key in ("video", "thumbnail", "metadata", "subtitles", "review_checklist", "evidence_register", "source_check"):
             path = item.get("artifacts", {}).get(key)
             if path:
                 artifact_paths.append(path)
