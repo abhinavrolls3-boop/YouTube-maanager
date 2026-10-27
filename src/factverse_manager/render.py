@@ -43,7 +43,7 @@ def scene_for_topic(text):
         return "shark"
     if any(word in value for word in ("honey", "bee", "hive", "honeycomb")):
         return "honey"
-    if any(word in value for word in ("astronaut", "space", "orbit", "planet", "gravity", "microgravity")):
+    if any(word in value for word in ("astronaut", "space", "orbit", "planet", "gravity", "microgravity", "moon", "jupiter")):
         return "space"
     return "science"
 
