@@ -10,7 +10,7 @@ This repository can prepare draft video packages on GitHub-hosted runners. You d
 ## Check a run from your phone
 1. Open the [FactVerse daily workflow](https://github.com/abhinavrolls3-boop/YouTube-maanager/actions/workflows/daily-automation.yml).
 2. Open the latest run and read its **Summary** first.
-3. Under **Artifacts**, open `factverse-daily-<run-id>` to retrieve the generated files. Start with `index.html` for a phone-friendly per-topic dashboard; it links to the video, thumbnail, captions, metadata, source report, and review files. The artifact expires after 7 days.
+3. Under **Artifacts**, open `factverse-daily-<run-id>` to retrieve the generated files. Start with `index.html` for a phone-friendly per-topic dashboard; it links to the video, thumbnail, captions (both burned into frames and SRT sidecar), metadata, source report, and review files. The artifact expires after 7 days.
 4. If a topic says `needs_attention`, read its warning and source-check report before considering the video.
 
 ## Run it manually
