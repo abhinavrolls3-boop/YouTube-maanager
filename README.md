@@ -9,7 +9,7 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 - One-week calendar, bounded batch production, package preflight checks, JSON review report, and SHA-256 artifact integrity manifest.
 - Package preflight now decodes the generated MP4, checks that it is readable and vertical, and validates thumbnail readability; corrupt/non-video files are rejected.
 - If metadata points to an SRT file, package preflight checks cue numbering, timestamp syntax, overlaps, and missing captions; it does not claim captions are synchronized to spoken audio.
-- Missing source URLs are flagged. A separate command checks URL reachability but cannot verify claims.
+- Missing source URLs are flagged. Scheduled batches also check source URL reachability and include a per-topic report; this cannot verify factual support.
 - Each batch now creates a per-claim evidence register; every claim starts unverified and needs human evidence review.
 - Offline YouTube Studio CSV analytics summaries, including average view-duration parsing from common M:SS and H:MM:SS exports.
 - Optional OmniRoute model drafts, disabled unless configured.
