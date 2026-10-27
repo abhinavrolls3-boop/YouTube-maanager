@@ -130,7 +130,8 @@ def run_batch(days=1, start_date=None, output_dir="output"):
         for key, label in (("video", "Video"), ("thumbnail", "Thumbnail"),
                            ("metadata", "Metadata"), ("subtitles", "Captions"),
                            ("source_check", "Source check"), ("evidence_register", "Evidence review"),
-                           ("review_checklist", "Review checklist"), ("research_leads", "Research leads")):
+                           ("review_checklist", "Review checklist"), ("research_leads", "Research leads"),
+                           ("creative_brief", "Shorts creative brief")):
             rel = _relative_link(artifacts.get(key))
             if rel:
                 links.append(f'<a href="{rel}">{label}</a>')
