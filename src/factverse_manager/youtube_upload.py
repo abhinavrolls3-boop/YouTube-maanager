@@ -3,6 +3,7 @@ from pathlib import Path
 import json
 import os
 from datetime import datetime, timezone
+from urllib.parse import urlparse
 from .state import file_sha256, has_uploaded_hash, load_history, record_upload
 
 def _credentials(client_secret_file):
@@ -35,6 +36,26 @@ def upload_video(video_path: str, metadata: dict, client_secret_file: str = "cli
         raise RuntimeError("Upload blocked: originality_check_status must be passed after reviewing the video for reused or repetitive content.")
     if metadata.get("evidence_review_status") != "human_reviewed_supported":
         raise RuntimeError("Upload blocked: per-claim evidence review must be approved before upload.")
+    if video.suffix.lower() != ".mp4" or video.stat().st_size == 0:
+        raise RuntimeError("Upload blocked: video must be a non-empty .mp4 file.")
+    title = metadata.get("title")
+    description = metadata.get("description")
+    if not isinstance(title, str) or not title.strip() or len(title.strip()) > 100:
+        raise RuntimeError("Upload blocked: title must contain 1–100 characters.")
+    if not isinstance(description, str) or not description.strip():
+        raise RuntimeError("Upload blocked: a non-empty description is required.")
+    if any(
+        not isinstance(source, str)
+        or urlparse(source).scheme not in {"http", "https"}
+        or not urlparse(source).netloc
+        for source in sources
+    ):
+        raise RuntimeError("Upload blocked: every source URL must be a valid HTTP(S) URL.")
+    made_for_kids_value = os.getenv("YOUTUBE_MADE_FOR_KIDS", "").strip().lower()
+    if made_for_kids_value not in {"true", "false"}:
+        raise RuntimeError(
+            "Upload blocked: set YOUTUBE_MADE_FOR_KIDS=true or false after deciding the correct audience setting for this video/channel."
+        )
     digest = file_sha256(video)
     history_path = os.getenv("UPLOAD_HISTORY", "output/upload_history.json")
     try:
@@ -70,7 +91,7 @@ def upload_video(video_path: str, metadata: dict, client_secret_file: str = "cli
         },
         "status": {
             "privacyStatus": privacy,
-            "selfDeclaredMadeForKids": False,
+            "selfDeclaredMadeForKids": made_for_kids_value == "true",
         },
     }
     response = youtube.videos().insert(
