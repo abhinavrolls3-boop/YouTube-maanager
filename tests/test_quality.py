@@ -78,3 +78,18 @@ def test_corrupt_mp4_is_rejected(tmp_path):
     result = validate_package(video, thumb, metadata)
     assert not result["ok"]
     assert any("cannot be decoded" in issue.lower() for issue in result["issues"])
+
+
+
+def test_relative_subtitle_path_resolves_from_metadata_directory(tmp_path):
+    video = tmp_path / "clip.mp4"
+    make_video(video)
+    thumb = tmp_path / "thumb.png"
+    Image.new("RGB", (720, 1280)).save(thumb)
+    subtitle = tmp_path / "clip.srt"
+    subtitle.write_text("1\\n00:00:00,000 --> 00:00:05,000\\nA short caption\\n", encoding="utf-8")
+    metadata = tmp_path / "metadata.json"
+    make_metadata(metadata, subtitle_path="clip.srt")
+    result = validate_package(video, thumb, metadata)
+    assert result["ok"], result["issues"]
+    assert result["subtitle_report"]["ok"]
