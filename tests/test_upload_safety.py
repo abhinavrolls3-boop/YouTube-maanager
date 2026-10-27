@@ -33,7 +33,7 @@ def test_upload_requires_originality_approval_before_api_call(tmp_path, monkeypa
     monkeypatch.setenv("ENABLE_UPLOAD", "true")
     monkeypatch.setenv("UPLOAD_PRIVACY", "unlisted")
     metadata = {"title":"Fact", "description":"desc", "source_urls":["https://example.org"],
-                "human_review_status":"approved", "originality_check_status":"needs_review"}
+                "human_review_status":"approved", "originality_check_status":"needs_review", "evidence_review_status":"human_reviewed_supported"}
     with pytest.raises(RuntimeError, match="originality_check_status"):
         upload_video(str(video), metadata)
 
@@ -50,6 +50,6 @@ def test_upload_daily_cap_blocks_before_api_call(tmp_path, monkeypatch):
     monkeypatch.setenv("UPLOAD_HISTORY", str(history))
     monkeypatch.setenv("MAX_UPLOADS_PER_DAY", "1")
     metadata = {"title":"Fact", "description":"desc", "source_urls":["https://example.org"],
-                "human_review_status":"approved", "originality_check_status":"passed"}
+                "human_review_status":"approved", "originality_check_status":"passed", "evidence_review_status":"human_reviewed_supported"}
     with pytest.raises(RuntimeError, match="Daily upload safety limit"):
         upload_video(str(video), metadata)
