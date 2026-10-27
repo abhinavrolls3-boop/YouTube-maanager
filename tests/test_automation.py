@@ -16,6 +16,15 @@ def test_batch_generates_review_report_without_publishing(tmp_path, monkeypatch)
     assert saved["failed"] == 0
     assert saved["attempted"] == 1
     assert (tmp_path / "output" / "artifact_manifest.json").is_file()
+    queue = tmp_path / "output" / "content_queue.csv"
+    assert queue.is_file()
+    queue_text = queue.read_text(encoding="utf-8-sig")
+    assert "creative_brief" in queue_text
+    assert "review_checklist" in queue_text
+    assert "ready_for_review" in queue_text
+    assert report["content_queue_csv"] == str(queue)
+    dashboard = (tmp_path / "output" / "index.html").read_text(encoding="utf-8")
+    assert "content_queue.csv" in dashboard
     checklist = report["items"][0]["artifacts"]["review_checklist"]
     assert Path(checklist).is_file()
     evidence = report["items"][0]["artifacts"]["evidence_register"]
