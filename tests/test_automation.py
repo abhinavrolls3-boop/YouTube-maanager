@@ -40,3 +40,23 @@ def test_batch_restores_output_environment_after_completion(tmp_path, monkeypatc
     monkeypatch.setenv("FACTVERSE_OUTPUT_DIR", "previous-value")
     run_batch(days=1, start_date="2026-10-26", output_dir=str(tmp_path / "custom"))
     assert __import__("os").environ["FACTVERSE_OUTPUT_DIR"] == "previous-value"
+
+
+def test_batch_source_check_can_flag_unreachable_sources(tmp_path, monkeypatch):
+    import factverse_manager.automation as automation
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("ENABLE_SOURCE_CHECKS", "true")
+    monkeypatch.setattr(automation, "check_sources", lambda urls, timeout=8: {
+        "total": len(urls or []), "reachable": 0,
+        "sources": [{"url": url, "reachable": False, "status": "unreachable"} for url in (urls or [])],
+        "note": "Reachability does not verify claim support.",
+    })
+    report, _ = run_batch(days=1, start_date="2026-10-26")
+    item = report["items"][0]
+    assert item["status"] == "needs_attention"
+    assert any("source URLs could not be reached" in warning for warning in item["warnings"])
+    source_report = Path(item["artifacts"]["source_check"])
+    assert source_report.is_file()
+    manifest = json.loads((tmp_path / "output" / "artifact_manifest.json").read_text(encoding="utf-8"))
+    assert any(entry["path"].endswith("_source_check.json") for entry in manifest["artifacts"])
