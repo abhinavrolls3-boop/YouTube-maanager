@@ -57,6 +57,7 @@ def test_upload_daily_cap_blocks_before_api_call(tmp_path, monkeypatch):
         "uploaded_at":datetime.now(timezone.utc).isoformat()}]}))
     monkeypatch.setenv("ENABLE_UPLOAD", "true")
     monkeypatch.setenv("UPLOAD_PRIVACY", "unlisted")
+    monkeypatch.setenv("YOUTUBE_MADE_FOR_KIDS", "false")
     monkeypatch.setenv("UPLOAD_HISTORY", str(history))
     monkeypatch.setenv("MAX_UPLOADS_PER_DAY", "1")
     metadata = {"title":"Fact", "description":"desc", "source_urls":["https://example.org"],
