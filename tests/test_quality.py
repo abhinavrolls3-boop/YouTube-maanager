@@ -87,7 +87,10 @@ def test_relative_subtitle_path_resolves_from_metadata_directory(tmp_path):
     thumb = tmp_path / "thumb.png"
     Image.new("RGB", (720, 1280)).save(thumb)
     subtitle = tmp_path / "clip.srt"
-    subtitle.write_text("1\\n00:00:00,000 --> 00:00:05,000\\nA short caption\\n", encoding="utf-8")
+    subtitle.write_text("""1
+00:00:00,000 --> 00:00:05,000
+A short caption
+""", encoding="utf-8")
     metadata = tmp_path / "metadata.json"
     make_metadata(metadata, subtitle_path="clip.srt")
     result = validate_package(video, thumb, metadata)
