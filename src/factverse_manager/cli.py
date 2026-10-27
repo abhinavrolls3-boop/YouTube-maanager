@@ -66,11 +66,19 @@ def render_fact(fact, safe_slug):
     metadata["topic_slug"] = safe_slug
     metadata["human_fact_check_required"] = True
     metadata["narration_status"] = narration_status
-    metadata["shorts_creative_brief"] = build_short_brief(
+    creative_brief = build_short_brief(
         fact.title, fact.narration, fact.explanation, fact.tags
     )
+    metadata["shorts_creative_brief"] = creative_brief
     metadata_path = _write_json(str(output_dir / f"{safe_slug}_metadata.json"), metadata)
-    return {"topic": safe_slug, "video": video, "thumbnail": thumbnail, "metadata": metadata_path, "subtitles": subtitle_path}
+    creative_brief_path = _write_json(
+        str(output_dir / f"{safe_slug}_creative_brief.json"), creative_brief
+    )
+    return {
+        "topic": safe_slug, "video": video, "thumbnail": thumbnail,
+        "metadata": metadata_path, "subtitles": subtitle_path,
+        "creative_brief": creative_brief_path,
+    }
 
 def render_topic(slug=None):
     topic = get_topic(slug) if slug else None
