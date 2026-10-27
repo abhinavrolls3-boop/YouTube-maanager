@@ -122,7 +122,7 @@ def _draw_scene(draw, scene, phase):
         draw.text((cx-16, cy-30), "?", font=_font(58), fill="white")
 
 
-def make_frame(index, total, title, explanation):
+def make_frame(index, total, title, explanation, caption_text=None):
     im = Image.new("RGB", (W, H), (8, 18, 42))
     d = ImageDraw.Draw(im)
     phase = index / max(total, 1) * math.tau
@@ -142,22 +142,41 @@ def make_frame(index, total, title, explanation):
             break
         d.text((58, yy), line, font=bf, fill=(195, 216, 240))
         yy += 42
-    d.text((36, 1195), "Curiosity starts here  •  Follow for more", font=_font(22), fill=(105, 220, 255))
+    if caption_text:
+        # Burn captions into the frame so they remain visible without a separate SRT track.
+        d.rounded_rectangle((28, 1090, W-28, 1210), radius=22,
+                            fill=(3, 10, 24), outline=(105, 220, 255), width=2)
+        cf = _font(27)
+        caption_lines = _wrap(d, str(caption_text), cf, W-86)[:2]
+        caption_y = 1112 if len(caption_lines) == 1 else 1100
+        for line in caption_lines:
+            d.text((43, caption_y), line, font=cf, fill=(255, 255, 255))
+            caption_y += 38
+    else:
+        d.text((36, 1195), "Curiosity starts here  •  Follow for more", font=_font(22), fill=(105, 220, 255))
     return im
 
 
-def render_video(title, explanation, output="output/factverse_sample.mp4", thumbnail="output/thumbnail.png", seconds=18, fps=12):
+def render_video(title, explanation, output="output/factverse_sample.mp4", thumbnail="output/thumbnail.png", seconds=18, fps=12, narration=None):
     if seconds < 5 or seconds > 60:
         raise ValueError("Duration must be between 5 and 60 seconds.")
     out, thumb = Path(output), Path(thumbnail)
     out.parent.mkdir(parents=True, exist_ok=True)
     thumb.parent.mkdir(parents=True, exist_ok=True)
     total = seconds * fps
-    make_frame(0, total, title, explanation).save(thumb)
+    words = str(narration or "").split()
+    caption_chunks = [words[i:i + 8] for i in range(0, len(words), 8)]
+    def frame_for(index):
+        caption = None
+        if caption_chunks:
+            chunk_index = min(len(caption_chunks) - 1, int(index / max(total, 1) * len(caption_chunks)))
+            caption = " ".join(caption_chunks[chunk_index])
+        return make_frame(index, total, title, explanation, caption_text=caption)
+    frame_for(0).save(thumb)
     writer = imageio.get_writer(str(out), fps=fps, codec="libx264", macro_block_size=16, ffmpeg_log_level="error", quality=7)
     try:
         for i in range(total):
-            writer.append_data(np.asarray(make_frame(i, total, title, explanation)))
+            writer.append_data(np.asarray(frame_for(i)))
     finally:
         writer.close()
     return str(out), str(thumb)
