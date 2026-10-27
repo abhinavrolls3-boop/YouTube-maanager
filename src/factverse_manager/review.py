@@ -37,6 +37,8 @@ def approve_metadata(metadata_path, human_review=False, originality=False):
     sources = data.get("source_urls", [])
     if not isinstance(sources, list) or not sources:
         raise ValueError("Cannot approve metadata without source URLs.")
+    if data.get("evidence_review_status") != "human_reviewed_supported":
+        raise ValueError("Approve the per-claim evidence register first with evidence-approve.")
     data["human_review_status"] = "approved"
     data["originality_check_status"] = "passed"
     data["reviewed_at_utc"] = datetime.now(timezone.utc).isoformat()
