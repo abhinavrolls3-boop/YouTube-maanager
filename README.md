@@ -4,7 +4,7 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 
 ## Implemented
 - Seven curated offline science/nature topics with source URLs in metadata.
-- Vertical MP4 videos with topic-specific 2D scenes for space, octopuses, Venus, sharks, and honey, plus two additional space topics; thumbnail, metadata, narration text, and timed SRT subtitles.
+- Vertical MP4 videos with topic-specific 2D scenes for space, octopuses, Venus, sharks, and honey, plus two additional space topics; thumbnails, metadata, timed SRT subtitles, and narration captions burned into the video frames. Video length is estimated from narration and shared with the SRT timing.
 - Optional free local English TTS in the daily workflow using espeak-ng; failure is recorded and may leave a silent video.
 - One-week calendar, bounded batch production, package preflight checks, JSON review report, and SHA-256 artifact integrity manifest.
 - Package preflight now decodes the generated MP4, checks that it is readable and vertical, and validates thumbnail readability; corrupt/non-video files are rejected.
@@ -36,7 +36,7 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 See [docs/PHONE_QUICKSTART.md](docs/PHONE_QUICKSTART.md) for the mobile workflow link, how to read run summaries, and how to retrieve temporary artifacts without using Termux or a computer.
 
 ## Daily automation
-Scheduled for 09:00 India time when GitHub provides a runner; this is not guaranteed always-on compute. AI drafts need secret `OMNIROUTE_API_KEY`, variables `OMNIROUTE_BASE_URL` and `OMNIROUTE_MODEL`, plus `ENABLE_AI_DRAFTS=true`. Provider costs/quotas may apply. The system does not yet conduct live source research.
+Scheduled for 09:00 India time when GitHub provides a runner; this is not guaranteed always-on compute. AI drafts need secret `OMNIROUTE_API_KEY`, variables `OMNIROUTE_BASE_URL` and `OMNIROUTE_MODEL`, plus `ENABLE_AI_DRAFTS=true`. Provider costs/quotas may apply. The system can discover free Wikipedia search leads; these are only research leads, not verified citations or proof that a claim is true.
 
 The scheduled workflow runs in GitHub's cloud; you do not need to keep ChatGPT or the phone app open. After each run, the workflow summary reports ready/failed counts and points to the temporary artifact. To receive a notification without checking GitHub, configure `NOTIFY_WEBHOOK_URL`. The scheduled workflow does not upload videos. Manual upload requires YouTube OAuth and explicit per-video approval metadata. The uploader permits only private/unlisted visibility and defaults to one upload per UTC day. Approval flags are meaningful only after you actually review the video and its sources; they are not a way to bypass review.
 
