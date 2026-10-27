@@ -148,8 +148,19 @@ def main():
         print(json.dumps({"metadata": args.metadata, "human_review_status": result["human_review_status"],
                           "originality_check_status": result["originality_check_status"],
                           "reviewed_at_utc": result["reviewed_at_utc"]}, indent=2, ensure_ascii=False))
+    elif args.command == "evidence":
+        register, path = create_evidence_register(args.metadata, args.output)
+        print(json.dumps({"evidence_register": path, "status": register["status"],
+                          "claims": len(register["claims"])}, indent=2, ensure_ascii=False))
+    elif args.command == "evidence-approve":
+        register = approve_evidence_register(
+            args.register, args.confirm_each_claim, args.confirm_sources
+        )
+        print(json.dumps({"evidence_register": args.register, "status": register["status"],
+                          "reviewed_at_utc": register["reviewed_at_utc"]},
+                         indent=2, ensure_ascii=False))
     else:
-        render_topic()
+        parser.print_help()
 
 if __name__ == "__main__":
     main()
