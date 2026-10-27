@@ -24,13 +24,29 @@ def _write_json(path, data):
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
     return str(path)
 
+def estimate_video_duration(narration, minimum=18, maximum=60):
+    """Estimate a safe vertical-video duration from narration length.
+
+    This is a rough reading-time estimate, not a measurement of generated audio.
+    Keep captions and the rendered video on the same duration.
+    """
+    import math
+    words = len(str(narration or "").split())
+    estimated = math.ceil(words / 2.4 + 4)
+    return max(minimum, min(maximum, estimated))
+
+
 def render_fact(fact, safe_slug):
     import os
     output_dir = Path(os.getenv("FACTVERSE_OUTPUT_DIR", "output"))
     output_dir.mkdir(parents=True, exist_ok=True)
     video_path = str(output_dir / f"{safe_slug}.mp4")
     thumbnail_path = str(output_dir / f"{safe_slug}_thumbnail.png")
-    video, thumbnail = render_video(fact.title, fact.explanation, video_path, thumbnail_path)
+    duration_seconds = estimate_video_duration(fact.narration)
+    video, thumbnail = render_video(
+        fact.title, fact.explanation, video_path, thumbnail_path,
+        seconds=duration_seconds,
+    )
     narration_status = "disabled"
     if __import__("os").getenv("ENABLE_NARRATION", "false").lower() == "true":
         try:
@@ -38,7 +54,10 @@ def render_fact(fact, safe_slug):
             narration_status = "generated_local_tts"
         except Exception as exc:
             narration_status = "unavailable: " + str(exc)
-    subtitle_path = write_srt(fact.narration, str(output_dir / f"{safe_slug}.srt"), duration=18)
+    subtitle_path = write_srt(
+        fact.narration, str(output_dir / f"{safe_slug}.srt"),
+        duration=duration_seconds,
+    )
     metadata = make_metadata(fact)
     metadata["subtitle_path"] = Path(subtitle_path).name
     metadata["narration"] = fact.narration
