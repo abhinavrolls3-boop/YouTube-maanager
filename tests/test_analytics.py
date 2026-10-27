@@ -30,3 +30,18 @@ def test_analytics_handles_engagement_and_retention_fields(tmp_path):
     assert result["metrics"]["comments"]["total"] == 3
     assert result["top_videos_by_views"][0]["avg_duration"] == 15
     assert any("Watch-duration" in x.get("observation", "") for x in result["experiments"])
+
+
+def test_average_view_duration_clock_format_is_converted_to_seconds(tmp_path):
+    csv_file = tmp_path / "duration.csv"
+    csv_file.write_text(
+        "Title,Views,Average view duration\n"
+        "Short,10,1:23\n"
+        "Long,20,0:02:05\n",
+        encoding="utf-8",
+    )
+    result = analyze_csv(csv_file)
+    assert result["metrics"]["avg_duration"]["total"] == 208
+    assert result["metrics"]["avg_duration"]["average"] == 104
+    assert result["metrics"]["avg_duration"]["unit"] == "seconds"
+    assert result["top_videos_by_views"][0]["avg_duration"] == 125
