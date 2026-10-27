@@ -11,7 +11,7 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 - If metadata points to an SRT file, package preflight checks cue numbering, timestamp syntax, overlaps, and missing captions; it does not claim captions are synchronized to spoken audio.
 - Missing source URLs are flagged. A separate command checks URL reachability but cannot verify claims.
 - Each batch now creates a per-claim evidence register; every claim starts unverified and needs human evidence review.
-- Offline YouTube Studio CSV analytics summaries.
+- Offline YouTube Studio CSV analytics summaries, including average view-duration parsing from common M:SS and H:MM:SS exports.
 - Optional OmniRoute model drafts, disabled unless configured.
 - Scheduled GitHub Actions workflow, artifacts, a phone-friendly run summary with per-topic status, and optional webhook notifications.
 - Manual YouTube API upload is protected by source, explicit human-review, originality-review, duplicate-file and daily-limit gates; public uploads are rejected.
