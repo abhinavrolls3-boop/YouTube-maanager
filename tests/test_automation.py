@@ -60,3 +60,14 @@ def test_batch_source_check_can_flag_unreachable_sources(tmp_path, monkeypatch):
     assert source_report.is_file()
     manifest = json.loads((tmp_path / "output" / "artifact_manifest.json").read_text(encoding="utf-8"))
     assert any(entry["path"].endswith("_source_check.json") for entry in manifest["artifacts"])
+
+
+def test_batch_creates_phone_friendly_dashboard(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    report, _ = run_batch(days=1, start_date="2026-10-26")
+    dashboard = (tmp_path / "output" / "index.html").read_text(encoding="utf-8")
+    assert "Drafts only" in dashboard
+    assert "Review every factual claim" in dashboard
+    assert "Ready for review: 1" in dashboard
+    assert ".mp4" in dashboard
+    assert "Evidence review" in dashboard
