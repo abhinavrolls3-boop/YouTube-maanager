@@ -9,6 +9,7 @@ from .manifest import create_manifest
 from .review import create_review_checklist
 from .evidence import create_evidence_register
 from .source_check import check_sources
+from .research import discover_sources
 
 
 def run_batch(days=1, start_date=None, output_dir="output"):
@@ -37,6 +38,21 @@ def run_batch(days=1, start_date=None, output_dir="output"):
                     result = render_topic(slug)
                 quality = validate_package(result["video"], result["thumbnail"], result["metadata"])
                 metadata = json.loads(Path(result["metadata"]).read_text(encoding="utf-8"))
+                research_path = None
+                if os.getenv("ENABLE_LIVE_RESEARCH", "false").lower() == "true":
+                    try:
+                        query = metadata.get("title", slug)
+                        tags = metadata.get("tags", [])
+                        if isinstance(tags, list):
+                            query += " " + " ".join(str(tag) for tag in tags[:3])
+                        research_report = discover_sources(query, limit=3, timeout=6)
+                        research_path = str(root / (slug + "_research_leads.json"))
+                        Path(research_path).write_text(json.dumps(research_report, indent=2, ensure_ascii=False), encoding="utf-8")
+                        result["research_leads"] = research_path
+                        if research_report["status"] != "results":
+                            warnings.append("Live research lookup returned no leads; inspect the curated sources manually.")
+                    except Exception as research_error:
+                        warnings.append("Live research lookup failed: " + type(research_error).__name__)
                 source_report_path = None
                 if os.getenv("ENABLE_SOURCE_CHECKS", "false").lower() == "true":
                     source_report = check_sources(metadata.get("source_urls", []), timeout=4)
@@ -74,7 +90,7 @@ def run_batch(days=1, start_date=None, output_dir="output"):
             except Exception as exc:
                 item.setdefault("warnings", []).append("Could not create review/evidence checklist: " + str(exc))
                 item["status"] = "needs_attention"
-        for key in ("video", "thumbnail", "metadata", "subtitles", "review_checklist", "evidence_register", "source_check"):
+        for key in ("video", "thumbnail", "metadata", "subtitles", "review_checklist", "evidence_register", "source_check", "research_leads"):
             path = item.get("artifacts", {}).get(key)
             if path:
                 artifact_paths.append(path)
@@ -114,7 +130,7 @@ def run_batch(days=1, start_date=None, output_dir="output"):
         for key, label in (("video", "Video"), ("thumbnail", "Thumbnail"),
                            ("metadata", "Metadata"), ("subtitles", "Captions"),
                            ("source_check", "Source check"), ("evidence_register", "Evidence review"),
-                           ("review_checklist", "Review checklist")):
+                           ("review_checklist", "Review checklist"), ("research_leads", "Research leads")):
             rel = _relative_link(artifacts.get(key))
             if rel:
                 links.append(f'<a href="{rel}">{label}</a>')
