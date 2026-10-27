@@ -69,11 +69,16 @@ def write_srt(text, path, duration=18, max_words=8):
     chunks = [words[i:i + max_words] for i in range(0, len(words), max_words)]
     root = Path(path)
     root.parent.mkdir(parents=True, exist_ok=True)
-    step = duration / max(1, len(chunks))
+    # Allocate time by spoken word count rather than giving a short final cue
+    # the same duration as a much longer cue. This is still an estimate, not
+    # forced alignment against actual TTS audio.
+    total_words = max(1, len(words))
+    elapsed_words = 0
     entries = []
     for index, chunk in enumerate(chunks, start=1):
-        start = (index - 1) * step
-        end = duration if index == len(chunks) else index * step
+        start = duration * elapsed_words / total_words
+        elapsed_words += len(chunk)
+        end = duration if index == len(chunks) else duration * elapsed_words / total_words
         entries.append(f"{index}\n{_stamp(start)} --> {_stamp(end)}\n{' '.join(chunk)}")
     root.write_text("\n\n".join(entries) + "\n", encoding="utf-8")
     return str(root)
