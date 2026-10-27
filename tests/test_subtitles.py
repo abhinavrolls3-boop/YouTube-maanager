@@ -36,3 +36,17 @@ def test_validate_srt_rejects_overlapping_cues(tmp_path):
     result = validate_srt(path)
     assert not result["ok"]
     assert any("overlaps" in issue for issue in result["issues"])
+
+
+
+def test_write_srt_weights_cue_duration_by_word_count(tmp_path):
+    path = tmp_path / "weighted.srt"
+    write_srt("one two three four five six seven eight nine", path, duration=18, max_words=8)
+    blocks = path.read_text(encoding="utf-8").strip().split("\n\n")
+    assert len(blocks) == 2
+    first_end = blocks[0].splitlines()[1].split(" --> ")[1]
+    second_start, second_end = blocks[1].splitlines()[1].split(" --> ")
+    assert first_end == second_start
+    assert first_end == "00:00:16,000"
+    assert second_end == "00:00:18,000"
+    assert validate_srt(path, duration_seconds=18)["ok"]
