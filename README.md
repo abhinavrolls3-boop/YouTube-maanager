@@ -9,7 +9,7 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 - One-week calendar, bounded batch production, package preflight checks, JSON review report, and SHA-256 artifact integrity manifest.
 - Package preflight now decodes the generated MP4, checks that it is readable and vertical, and validates thumbnail readability; corrupt/non-video files are rejected.
 - If metadata points to an SRT file, package preflight checks cue numbering, timestamp syntax, overlaps, and missing captions; it does not claim captions are synchronized to spoken audio.
-- Missing source URLs are flagged. Scheduled batches also check source URL reachability and include a per-topic report; this cannot verify factual support.
+- Missing source URLs are flagged. Scheduled batches check source URL reachability and include a per-topic report; an optional free Wikimedia search adds research leads for a human to inspect. Neither reachability nor search results verify factual support.
 - Each batch now creates a per-claim evidence register; every claim starts unverified and needs human evidence review.
 - Offline YouTube Studio CSV analytics summaries, including average view-duration parsing from common M:SS and H:MM:SS exports.
 - Optional OmniRoute model drafts, disabled unless configured.
@@ -41,7 +41,7 @@ Scheduled for 09:00 India time when GitHub provides a runner; this is not guaran
 The scheduled workflow runs in GitHub's cloud; you do not need to keep ChatGPT or the phone app open. After each run, the workflow summary reports ready/failed counts and points to the temporary artifact. To receive a notification without checking GitHub, configure `NOTIFY_WEBHOOK_URL`. The scheduled workflow does not upload videos. Manual upload requires YouTube OAuth and explicit per-video approval metadata. The uploader permits only private/unlisted visibility and defaults to one upload per UTC day. Approval flags are meaningful only after you actually review the video and its sources; they are not a way to bypass review.
 
 ## Not finished
-- Live source discovery and evidence checking, robust character animation, licensed music, advanced motion control, permanent database, guaranteed 24/7 runtime, full channel analytics, or guaranteed earnings.
+- Automatic evidence verification, robust character animation, licensed music, advanced motion control, permanent database, guaranteed 24/7 runtime, full channel analytics, or guaranteed earnings. Live source discovery currently provides Wikipedia search leads only, not verified citations.
 - Narration is basic robotic TTS, not studio-quality voice acting.
 - AI drafts are not automatically treated as verified or upload-ready.
 
