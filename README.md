@@ -31,6 +31,10 @@ A zero-budget-first toolkit for preparing FactVerse videos and automating repeat
 - Only after evidence approval and a separate originality/asset-rights review: `PYTHONPATH=src python -m factverse_manager.cli approve output/astronauts-float_metadata.json --confirm-human-review --confirm-originality`. The uploader blocks packages without the evidence-review status.
 - `PYTHONPATH=src python -m factverse_manager.cli draft "ocean science"`
 
+## Phone-only quick start
+
+See [docs/PHONE_QUICKSTART.md](docs/PHONE_QUICKSTART.md) for the mobile workflow link, how to read run summaries, and how to retrieve temporary artifacts without using Termux or a computer.
+
 ## Daily automation
 Scheduled for 09:00 India time when GitHub provides a runner; this is not guaranteed always-on compute. AI drafts need secret `OMNIROUTE_API_KEY`, variables `OMNIROUTE_BASE_URL` and `OMNIROUTE_MODEL`, plus `ENABLE_AI_DRAFTS=true`. Provider costs/quotas may apply. The system does not yet conduct live source research.
 
