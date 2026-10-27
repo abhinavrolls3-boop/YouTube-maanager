@@ -50,6 +50,8 @@ The scheduled workflow runs in GitHub's cloud; you do not need to keep ChatGPT o
 Never commit credentials or paste secrets into chat. See docs/AUTOMATION.md and docs/YOUTUBE_SETUP.md.
 
 
+Evidence approval validates the linked metadata file before changing approval status, so a missing or malformed metadata file cannot leave the evidence register marked approved. This is covered by a regression test.
+
 ## Safety and review
 
 Generated videos are drafts, not auto-published content. The scheduled workflow prepares artifacts only. Uploading requires source links, per-video human approval and an originality review; the uploader rejects public visibility and defaults to one upload per UTC day. No automated process can guarantee that YouTube will never restrict or remove a channel.
